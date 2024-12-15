@@ -1,0 +1,27 @@
+{
+  "name": "hardhat-chainlink-contracts",
+  "version": "1.0.0",
+  "description": "A hardhat plugin providing helpers to play with mocks of Chainlink services",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Tests are not implemented for this package\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlephVault/hardhat-chainlink-contracts.git"
+  },
+  "keywords": [
+    "hardhat",
+    "method",
+    "prompts"
+  ],
+  "author": "Luis Masuelli",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AlephVault/hardhat-chainlink-contracts/issues"
+  },
+  "homepage": "https://github.com/AlephVault/hardhat-chainlink-contracts#readme",
+  "peerDependencies": {
+    "hardhat": "^2.22.6"
+  }
+}
