@@ -22,13 +22,17 @@
   },
   "homepage": "https://github.com/AlephVault/hardhat-chainlink-contracts#readme",
   "peerDependencies": {
+    "@chainlink/contracts": "^1.3.0",
     "hardhat": "^2.22.6",
     "hardhat-blueprints": "^1.2.5",
+    "hardhat-ignition-deploy-everything": "^1.1.1",
     "hardhat-method-prompts": "^1.2.0"
   },
   "devDependencies": {
+    "@chainlink/contracts": "^1.3.0",
     "hardhat": "^2.22.6",
     "hardhat-blueprints": "^1.2.5",
+    "hardhat-ignition-deploy-everything": "1.1.1",
     "hardhat-method-prompts": "^1.2.0"
   }
 }
