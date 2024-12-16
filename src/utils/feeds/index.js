@@ -17,22 +17,47 @@ const fetchInit = {
 }
 
 /**
+ * Criteria that asks for a feed to be of Price type.
+ * @param e The entry
+ * @returns {boolean} Whether it's of Price type or not.
+ */
+function feedIsProductTypePrice(e) {
+    return e.docs?.productType === "Price";
+}
+
+/**
  * Adds all the Price Feed entries from a given chain
  * according to the Chainlink's directory. Only entries
  * with decimals will be included.
  * @param url The URL of the directory.
  * @param chainId The chain id.
  * @param entries The entries to populate.
+ * @param criteria The filter criteria to use.
  * @returns {Promise<void>} Nothing (async function).
  */
-async function addEntries(url, chainId, entries) {
+async function addEntries(url, chainId, entries, criteria) {
     console.log(`Retrieving ChainLink PriceFeed data from url: ${url}...`)
     let response = await fetch(url, fetchInit);
     console.log(`>>> Status code: ${response.status}`)
     if (response.status !== 200) return;
     let result = await response.json();
+    if (!(result instanceof Array)) {
+        console.log(">>> Skipping (not an array)");
+    }
+    result = result.filter(criteria);
     console.log(`>>> # of elements: ${(typeof result.length === "number" ? result.length : "Not an array!")}`);
-    if (typeof result.length !== "number" || result.length <= 0) return;
+
+    result.sort((a, b) => {
+        const au = a.name.toUpperCase();
+        const bu = b.name.toUpperCase();
+        if (au > bu) {
+            return 1;
+        } else if (bu > au) {
+            return -1;
+        } else {
+            return 0;
+        }
+    });
 
     for(let entry of result) {
         if (typeof entry.decimals === "number") {
@@ -47,10 +72,11 @@ async function addEntries(url, chainId, entries) {
  * Returns all the entries from a given list of directories
  * from Chainlink's database. All of them include the fields:
  * {chainId, address, decimals, name}.
+ * @param criteria The filter criteria to use.
  * @returns {Promise<*[]>} All the entries (async function),
  * considering only those with decimals being set.
  */
-async function getPriceFeedContracts() {
+async function getFeedContracts(criteria) {
     const allEntries = [];
     const sources = [
         {url: "https://reference-data-directory.vercel.app/feeds-mainnet.json", chainId: 1},
@@ -89,11 +115,12 @@ async function getPriceFeedContracts() {
         {url: "https://reference-data-directory.vercel.app/feeds-hedera-testnet.json", chainId: 296},
     ];
     for (let {url, chainId} of sources) {
-        await addEntries(url, chainId, allEntries);
+        await addEntries(url, chainId, allEntries, criteria);
     }
     return allEntries;
 }
 
 module.exports = {
-    getPriceFeedContracts
+    getFeedContracts,
+    feedIsProductTypePrice
 }
