@@ -20,7 +20,7 @@ module.exports = buildModule("MaticUsd", (m) => {
   // will be passed directly to the constructor.
 
   const contract = m.contract(
-    "PriceFeedMock", []
+    "PriceFeedMock", ["50000000", "Matic/USD PriceFeed mock", 8, 1]
   );
 
   // In this case, the result is a single object having a contract: key
