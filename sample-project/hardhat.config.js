@@ -2,6 +2,7 @@ require("@nomicfoundation/hardhat-toolbox");
 require("hardhat-enquirer-plus");
 require("hardhat-common-tools");
 require("hardhat-blueprints");
+require("hardhat-method-prompts");
 require("hardhat-ignition-deploy-everything");
 require("..");
 
