@@ -3,18 +3,21 @@ pragma solidity 0.8.24;
 import "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
 contract PriceFeedMock is AggregatorV3Interface {
-    int256 public answer;
+    struct Entry {
+        int256 answer;
+        uint256 stamp;
+    }
+
     uint8 private _decimals;
     uint256 private _version;
     string private _description;
-
-    uint256 private blockTimestampDeduction = 0;
+    Entry[] private _entries;
 
     constructor(int256 _answer, string memory _descr, uint8 _decs, uint256 _v) {
-        answer = _answer;
         _description = _descr;
         _decimals = _decs;
         _version = _v;
+        _entries.push(Entry({answer: _answer, stamp: block.timestamp}));
     }
 
     function decimals() external view override returns (uint8) {
@@ -32,12 +35,17 @@ contract PriceFeedMock is AggregatorV3Interface {
     function getRoundData(
         uint80 /*_roundId*/
     )
-    external
+    public
     view
     override
     returns (uint80 roundId, int256 ans, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
     {
-        return (1, answer, getDeductedBlockTimestamp(), getDeductedBlockTimestamp(), 1);
+        if (roundId == 0 || roundId > _entries.length) {
+            return (0, 0, 0, 0, 0);
+        } else {
+            Entry storage entry = _entries[roundId - 1];
+            return (roundId, entry.answer, entry.stamp, entry.stamp, roundId);
+        }
     }
 
     function latestRoundData()
@@ -46,14 +54,11 @@ contract PriceFeedMock is AggregatorV3Interface {
     override
     returns (uint80 roundId, int256 ans, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
     {
-        return (1, answer, getDeductedBlockTimestamp(), getDeductedBlockTimestamp(), 1);
+        return getRoundData(uint80(_entries.length));
     }
 
-    function getDeductedBlockTimestamp() internal view returns (uint256) {
-        return block.timestamp - blockTimestampDeduction;
-    }
-
-    function setBlockTimestampDeduction(uint256 _blockTimestampDeduction) external {
-        blockTimestampDeduction = _blockTimestampDeduction;
+    function setAnswer(int256 _answer) external {
+        require(_entries.length < (1 << 80), "PriceFeedMock: rounds array is full");
+        _entries.push(Entry({answer: _answer, stamp: block.timestamp}));
     }
 }
