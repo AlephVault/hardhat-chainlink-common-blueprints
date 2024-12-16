@@ -26,11 +26,18 @@ const fetchInit = {
  * @returns {Promise<void>} Nothing (async function).
  */
 async function addEntries(url, chainId, entries) {
-    let result = await (await fetch(url, fetchInit)).json();
-    for(let entry in result) {
-        if (entry.decimals instanceof Number) {
-            entries.add({
-                chainId, address: entry.contractAddress, decimals: entry.decimals, name: entry.name
+    console.log(`Retrieving ChainLink PriceFeed data from url: ${url}...`)
+    let response = await fetch(url, fetchInit);
+    console.log(`>>> Status code: ${response.status}`)
+    if (response.status !== 200) return;
+    let result = await response.json();
+    console.log(`>>> # of elements: ${(typeof result.length === "number" ? result.length : "Not an array!")}`);
+    if (typeof result.length !== "number" || result.length <= 0) return;
+
+    for(let entry of result) {
+        if (typeof entry.decimals === "number") {
+            entries.push({
+                chainId, address: entry.proxyAddress, decimals: entry.decimals, name: entry.name
             });
         }
     }
@@ -85,4 +92,8 @@ async function getPriceFeedContracts() {
         await addEntries(url, chainId, allEntries);
     }
     return allEntries;
+}
+
+module.exports = {
+    getPriceFeedContracts
 }
