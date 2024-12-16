@@ -2,6 +2,10 @@
   "name": "hardhat-project",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "hardhat": "^2.22.17"
+    "hardhat": "^2.22.17",
+    "hardhat-blueprints": "1.2.5",
+    "hardhat-chainlink-contracts": "file:..",
+    "hardhat-ignition-deploy-everything": "^1.1.1",
+    "hardhat-method-prompts": "^1.2.0"
   }
 }
