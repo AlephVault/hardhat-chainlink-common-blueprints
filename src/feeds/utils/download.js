@@ -1,3 +1,8 @@
+const { getCachedValues } = require("../../common/utils/download");
+
+const FULL_FEEDS_FILE_PATH = '/tmp/hardhat-chainlink/feeds/full.json';
+const PRICE_FEEDS_FILE_PATH = '/tmp/hardhat-chainlink/feeds/prices.json';
+
 const fetchInit = {
     "credentials": "omit",
     "headers": {
@@ -76,7 +81,7 @@ async function addEntries(url, chainId, entries, criteria) {
  * @returns {Promise<*[]>} All the entries (async function),
  * considering only those with decimals being set.
  */
-async function getFeedContracts(criteria) {
+async function downloadFeedContracts(criteria) {
     const allEntries = [];
     const sources = [
         {url: "https://reference-data-directory.vercel.app/feeds-mainnet.json", chainId: 1},
@@ -128,7 +133,18 @@ async function getFeedContracts(criteria) {
     return allEntries;
 }
 
+/**
+ * Reads and/or re-downloads the cache.
+ * @param full Whether to download the full cache or just the prices.
+ * @param force Whether to actually force a re-download.
+ * @returns {Promise<*[]>} The cache contents (async function).
+ */
+async function getFeedContracts({ full, force }) {
+    const filePath = full ? FULL_FEEDS_FILE_PATH : PRICE_FEEDS_FILE_PATH;
+    const criteria = full ? (e) => true : feedIsProductTypePrice;
+    return await getCachedValues(filePath, force, () => downloadFeedContracts(criteria));
+}
+
 module.exports = {
-    getFeedContracts,
-    feedIsProductTypePrice
+    getFeedContracts
 }
