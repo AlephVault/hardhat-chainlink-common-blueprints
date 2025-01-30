@@ -45,7 +45,7 @@ function readStoredContents(filePath) {
  * as a JSON array (in a promise).
  * @returns {Promise<*[]>} The cache contents (async function).
  */
-async function getCachedValues({ filePath, force, downloadContents}) {
+async function getCachedValues(filePath, force, downloadContents) {
     try {
         // Ensure directory exists.
         const dir = path.dirname(filePath);
