@@ -115,7 +115,15 @@ async function getFeedContracts(criteria) {
         {url: "https://reference-data-directory.vercel.app/feeds-hedera-testnet.json", chainId: 296},
     ];
     for (let {url, chainId} of sources) {
-        await addEntries(url, chainId, allEntries, criteria);
+        try {
+            await addEntries(url, chainId, allEntries, criteria);
+        } catch(e) {
+            console.error(
+                "There was an error while trying to download the contracts' data for " +
+                `url: ${url} chain id: ${chainId}`
+            )
+            console.error(e)
+        }
     }
     return allEntries;
 }
