@@ -1,4 +1,4 @@
-require("./price-feeds");
+require("./feeds");
 require("./vrf");
 require("./functions");
 
