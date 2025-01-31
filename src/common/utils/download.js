@@ -27,9 +27,9 @@ function readStoredContents(filePath) {
         const content = fs.readFileSync(filePath, 'utf8');
         const json = JSON.parse(content);
         if (!Array.isArray(json) || json.length === 0) {
-            return json;
-        } else {
             return null;
+        } else {
+            return json;
         }
     } catch(e) {
         return null;
