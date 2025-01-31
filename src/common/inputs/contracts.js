@@ -19,6 +19,13 @@ extendEnvironment(hre => {
 
         async run() {
             this.choices = await this._loadChoices();
+            if (this.choices.length === 0) {
+                throw new Error(
+                    `There are no contracts of this type for the current network - ` +
+                    "ensure you select a network (e.g. Sepolia, Amoy, Ethereum, Polygon) " +
+                    "that actually has the proper Chainlink contracts deployed on it"
+                );
+            }
             this.options.choices = this.choices;
             return await super.run();
         }
