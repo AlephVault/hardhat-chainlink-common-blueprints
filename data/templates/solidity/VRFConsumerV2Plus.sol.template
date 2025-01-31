@@ -26,9 +26,9 @@ contract #SCRIPT_NAME# is VRFConsumerBaseV2Plus {
     // number generator, and the hash of the gas lane to
     // use (it has to do with gas prices and priorities,
     // not with the gas quantity).
-    uint256 constant subscriptionId = #SUBSCRIPTION_ID#;
-    address constant vrfCoordinator = #VRF_COORDINATOR#;
-    bytes32 constant keyHash = #KEY_HASH#;
+    uint256 private subscriptionId;
+    address private vrfCoordinator;
+    bytes32 private keyHash;
 
     /**
      * The status of the request.
