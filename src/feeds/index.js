@@ -1,5 +1,6 @@
 const path = require("path");
-const {extendEnvironment} = require("hardhat/config");
+const { extendEnvironment } = require("hardhat/config");
+const { getFeedContracts } = require("./utils/download");
 
 const baseDir = path.resolve(
     __dirname, "..", "data", "templates", "solidity"
@@ -14,9 +15,39 @@ extendEnvironment((hre) => {
     };
 
     hre.blueprints.registerBlueprint(
-        "chainlink:price-feed", "PriceFeedMock", "A Chainlink PriceFeed mock",
+        "chainlink:price-feed:contract", "PriceFeedMock", "A Chainlink PriceFeed mock contract",
         path.resolve(baseDir, "PriceFeedMock.sol.template"), "solidity", [
             solidityVersionArgument
+        ]
+    );
+
+    hre.blueprints.registerBlueprint(
+        "chainlink:price-feed:deployment:external", "AggregatorV3Interface", "An ignition module referencing an existing ChainLink PriceFeed",
+        path.resolve(baseDir, "AggregatorV3Interface.js.template"), "ignition-module", [
+            {
+                name: "CONTRACT_ADDRESS",
+                description: "The address of an existing feed contract",
+                message: "Choose the existing feed contract for this network",
+                argumentType: {
+                    type: "plus:hardhat:given-or-remote-contract-select",
+                    loader: () => getFeedContracts({full: false})
+                }
+            }
+        ]
+    );
+
+    hre.blueprints.registerBlueprint(
+        "chainlink:aggregator:deployment:external", "AggregatorV3Interface", "An ignition module referencing an existing ChainLink AggregatorV3Interface (PriceFeed or not)",
+        path.resolve(baseDir, "AggregatorV3Interface.js.template"), "ignition-module", [
+            {
+                name: "CONTRACT_ADDRESS",
+                description: "The address of an existing feed contract",
+                message: "Choose the existing feed contract for this network",
+                argumentType: {
+                    type: "plus:hardhat:given-or-remote-contract-select",
+                    loader: () => getFeedContracts({full: true})
+                }
+            }
         ]
     );
 
