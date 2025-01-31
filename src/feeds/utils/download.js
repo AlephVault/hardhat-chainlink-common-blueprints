@@ -37,10 +37,9 @@ function feedIsProductTypePrice(e) {
  * @param url The URL of the directory.
  * @param chainId The chain id.
  * @param entries The entries to populate.
- * @param criteria The filter criteria to use.
  * @returns {Promise<void>} Nothing (async function).
  */
-async function addEntries(url, chainId, entries, criteria) {
+async function addEntries(url, chainId, entries) {
     console.log(`Retrieving ChainLink PriceFeed data from url: ${url}...`)
     let response = await fetch(url, fetchInit);
     console.log(`>>> Status code: ${response.status}`)
@@ -49,7 +48,6 @@ async function addEntries(url, chainId, entries, criteria) {
     if (!(result instanceof Array)) {
         console.log(">>> Skipping (not an array)");
     }
-    result = result.filter(criteria);
     console.log(`>>> # of elements: ${(typeof result.length === "number" ? result.length : "Not an array!")}`);
 
     result.sort((a, b) => {
@@ -77,11 +75,10 @@ async function addEntries(url, chainId, entries, criteria) {
  * Returns all the entries from a given list of directories
  * from Chainlink's database. All of them include the fields:
  * {chainId, address, decimals, name}.
- * @param criteria The filter criteria to use.
  * @returns {Promise<*[]>} All the entries (async function),
  * considering only those with decimals being set.
  */
-async function downloadFeedContracts(criteria) {
+async function downloadFeedContracts() {
     const allEntries = [];
     const sources = [
         {url: "https://reference-data-directory.vercel.app/feeds-mainnet.json", chainId: 1},
@@ -121,7 +118,7 @@ async function downloadFeedContracts(criteria) {
     ];
     for (let {url, chainId} of sources) {
         try {
-            await addEntries(url, chainId, allEntries, criteria);
+            await addEntries(url, chainId, allEntries);
         } catch(e) {
             console.error(
                 "There was an error while trying to download the contracts' data for " +
@@ -135,14 +132,12 @@ async function downloadFeedContracts(criteria) {
 
 /**
  * Reads and/or re-downloads the cache.
- * @param full Whether to download the full cache or just the prices.
  * @param force Whether to actually force a re-download.
  * @returns {Promise<*[]>} The cache contents (async function).
  */
-async function getFeedContracts({ full, force }) {
-    const filePath = full ? FULL_FEEDS_FILE_PATH : PRICE_FEEDS_FILE_PATH;
-    const criteria = full ? (e) => true : feedIsProductTypePrice;
-    return await getCachedValues(filePath, force, () => downloadFeedContracts(criteria));
+async function getFeedContracts({ force }) {
+    const filePath = FULL_FEEDS_FILE_PATH;
+    return await getCachedValues(filePath, force, downloadFeedContracts);
 }
 
 module.exports = {
