@@ -39,13 +39,12 @@ function readStoredContents(filePath) {
 /**
  * Reads and/or re-downloads the cached values.
  * @param filePath The related cache file path.
- * @param force Whether to actually force a re-download.
  * @param downloadContents The function that downloads the
  * contents. It just downloads the contents and returns them
  * as a JSON array (in a promise).
  * @returns {Promise<*[]>} The cache contents (async function).
  */
-async function getCachedValues(filePath, force, downloadContents) {
+async function getCachedValues(filePath, downloadContents) {
     try {
         // Ensure directory exists.
         const dir = path.dirname(filePath);
@@ -57,7 +56,7 @@ async function getCachedValues(filePath, force, downloadContents) {
         // is forced, then download the contents.
         // Otherwise, read the contents and, if that
         // fails, re-download them.
-        if (force || !fs.existsSync(filePath)) {
+        if (!fs.existsSync(filePath)) {
             return await downloadAndStoreFeedContracts(filePath, downloadContents);
         } else {
             return readStoredContents(filePath) || await downloadAndStoreFeedContracts(filePath, downloadContents);

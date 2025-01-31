@@ -1,7 +1,6 @@
 const { getCachedValues } = require("../../common/utils/download");
 
 const FULL_FEEDS_FILE_PATH = '/tmp/hardhat-chainlink/feeds/full.json';
-const PRICE_FEEDS_FILE_PATH = '/tmp/hardhat-chainlink/feeds/prices.json';
 
 const fetchInit = {
     "credentials": "omit",
@@ -132,12 +131,11 @@ async function downloadFeedContracts() {
 
 /**
  * Reads and/or re-downloads the cache.
- * @param force Whether to actually force a re-download.
  * @returns {Promise<*[]>} The cache contents (async function).
  */
-async function getFeedContracts({ force }) {
+async function getFeedContracts() {
     const filePath = FULL_FEEDS_FILE_PATH;
-    return await getCachedValues(filePath, force, downloadFeedContracts);
+    return await getCachedValues(filePath, downloadFeedContracts);
 }
 
 module.exports = {
