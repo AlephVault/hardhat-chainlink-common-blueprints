@@ -110,5 +110,16 @@ const vrfSettings = [
 
 
 module.exports = {
-    getVRFSettings: () => vrfSettings
+    getVRFSettings: () => vrfSettings.map((e) => ({
+        chainId: e.chainId, address: e.coordinatorAdderess, name: "(The only VRF coordinator)"
+    })),
+    getLaneHashes: () => {
+        let lanes = [];
+        vrfSettings.forEach((e) => {
+            e.lanes.forEach((l) => {
+                lanes.push({chainId: e.chainId, value: l.hash, name: l.name});
+            });
+        });
+        return lanes;
+    }
 }
