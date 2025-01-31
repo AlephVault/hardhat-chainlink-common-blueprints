@@ -1,5 +1,6 @@
 const path = require("path");
 const { extendEnvironment } = require("hardhat/config");
+const { getVRFCoordinators, getVRFLaneHashes } = require("./utils/download");
 
 const baseDir = path.resolve(
     __dirname, "..", "..", "data", "templates", "ignition-modules"
@@ -58,7 +59,9 @@ extendEnvironment((hre) => {
                 description: "The VRFCoordinator contract",
                 message: "Choose the proper VRF Coordinator contract",
                 argumentType: {
-                    // TODO, but will be an address.
+                    type: "plus:hardhat:given-or-remote-contract-select",
+                    remoteValueType: "VRF Coordinator contracts",
+                    loader: () => getVRFCoordinators()
                 }
             },
             {
@@ -66,10 +69,11 @@ extendEnvironment((hre) => {
                 description: "The gas lane to use",
                 message: "Choose the proper gas lane to use (check Chainlink's docs for the network to understand the gas prices)",
                 argumentType: {
-                    // TODO, but will be a bytes32.
+                    type: "plus:hardhat:given-or-remote-contract-select",
+                    remoteValueType: "VRF gas lanes",
+                    loader: () => getVRFLaneHashes()
                 }
             }
         ]
     );
-
 });

@@ -29,6 +29,7 @@ extendEnvironment((hre) => {
                 message: "Choose the existing feed contract for this network",
                 argumentType: {
                     type: "plus:hardhat:given-or-remote-contract-select",
+                    remoteValueType: "Feed contracts",
                     loader: () => getFeedContracts()
                 }
             }

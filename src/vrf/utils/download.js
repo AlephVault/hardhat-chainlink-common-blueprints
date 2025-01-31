@@ -110,10 +110,10 @@ const vrfSettings = [
 
 
 module.exports = {
-    getVRFSettings: () => vrfSettings.map((e) => ({
+    getVRFCoordinators: () => vrfSettings.map((e) => ({
         chainId: e.chainId, address: e.coordinatorAdderess, name: "(The only VRF coordinator)"
     })),
-    getLaneHashes: () => {
+    getVRFLaneHashes: () => {
         let lanes = [];
         vrfSettings.forEach((e) => {
             e.lanes.forEach((l) => {
