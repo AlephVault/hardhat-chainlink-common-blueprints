@@ -7,13 +7,13 @@ extendEnvironment(hre => {
      * given type.
      */
     class GivenOrRemoteContractSelect extends hre.enquirerPlus.Enquirer.GivenOrSelect {
-        constructor({loader, ...options}) {
+        constructor({loader, choices, ...options}) {
             super({...options, choices: ["Loading..."]});
             this._loadChoices = async () => {
                 const chainId = await hre.common.getChainId();
-                return (await loader()).filter((e) => chainId === e.chainId).map((e) => {
+                return loader ? (await loader()).filter((e) => chainId === e.chainId).map((e) => {
                     return {name: e.address, message: e.name};
-                });
+                }) : (choices || []).map(e => ({name: e.address, message: e.name}));
             }
         }
 
