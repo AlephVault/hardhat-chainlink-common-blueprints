@@ -20,7 +20,6 @@ extendEnvironment((hre) => {
             solidityVersionArgument
         ]
     );
-
     hre.blueprints.registerBlueprint(
         "chainlink:price-feed:deployment:external", "AggregatorV3Interface", "An ignition module referencing an existing ChainLink PriceFeed",
         path.resolve(baseDir, "AggregatorV3Interface.js.template"), "ignition-module", [
@@ -35,7 +34,6 @@ extendEnvironment((hre) => {
             }
         ]
     );
-
     hre.blueprints.registerBlueprint(
         "chainlink:aggregator:deployment:external", "AggregatorV3Interface", "An ignition module referencing an existing ChainLink AggregatorV3Interface (PriceFeed or not)",
         path.resolve(baseDir, "AggregatorV3Interface.js.template"), "ignition-module", [
