@@ -88,7 +88,7 @@ extendEnvironment((hre) => {
     new hre.methodPrompts.ContractMethodPrompt(
         "send", "setAnswer", {
             onError: (e) => {
-                console.error("There was an error while running this method");
+                console.error("There was an error while running this method (probably not a PriceFeed mock)");
                 console.error(e);
             },
             onSuccess: (tx) => {
