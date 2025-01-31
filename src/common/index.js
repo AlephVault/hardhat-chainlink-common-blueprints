@@ -1,1 +1,1 @@
-require("./inputs/contracts")
+require("./inputs/contracts");

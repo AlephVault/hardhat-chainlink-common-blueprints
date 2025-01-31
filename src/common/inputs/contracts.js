@@ -1,4 +1,4 @@
-import {extendEnvironment} from "hardhat/config";
+const { extendEnvironment } = require("hardhat/config");
 
 extendEnvironment(hre => {
     /**
@@ -30,4 +30,3 @@ extendEnvironment(hre => {
     );
 })
 
-module.exports = {};
