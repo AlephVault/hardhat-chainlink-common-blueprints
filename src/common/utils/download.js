@@ -68,6 +68,14 @@ async function getCachedValues(filePath, downloadContents) {
     }
 }
 
+/**
+ * Invalidates a local cache.
+ * @param filePath The cache to invalidate.
+ */
+function invalidate(filePath) {
+    fs.unlinkSync(filePath);
+}
+
 module.exports = {
     getCachedValues
 }

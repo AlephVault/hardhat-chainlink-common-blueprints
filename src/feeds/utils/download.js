@@ -1,4 +1,4 @@
-const { getCachedValues } = require("../../common/utils/download");
+const { getCachedValues, invalidate } = require("../../common/utils/download");
 
 const FULL_FEEDS_FILE_PATH = '/tmp/hardhat-chainlink/feeds/full.json';
 
@@ -137,6 +137,13 @@ async function getFeedContracts() {
     return await getCachedValues(FULL_FEEDS_FILE_PATH, downloadFeedContracts);
 }
 
+/**
+ * Invalidates the feed contracts cache.
+ */
+function invalidateFeedContracts() {
+    invalidate(FULL_FEEDS_FILE_PATH);
+}
+
 module.exports = {
-    getFeedContracts
+    getFeedContracts, invalidate
 }
