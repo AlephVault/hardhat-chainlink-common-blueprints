@@ -15,13 +15,13 @@ extendEnvironment((hre) => {
     };
 
     hre.blueprints.registerBlueprint(
-        "chainlink:price-feed:contract", "PriceFeedMock", "A Chainlink PriceFeed mock contract",
+        "chainlink:feed:feed-mock-contract", "PriceFeedMock", "A Chainlink PriceFeed mock contract",
         path.resolve(baseDir, "PriceFeedMock.sol.template"), "solidity", [
             solidityVersionArgument
         ]
     );
     hre.blueprints.registerBlueprint(
-        "chainlink:aggregator:deployment:external", "AggregatorV3Interface", "An ignition module referencing an existing ChainLink AggregatorV3Interface (PriceFeed or not)",
+        "chainlink:feed:feed-external-deployment", "AggregatorV3Interface", "An ignition module referencing an existing ChainLink AggregatorV3Interface (PriceFeed or not)",
         path.resolve(baseDir, "AggregatorV3Interface.js.template"), "ignition-module", [
             {
                 name: "CONTRACT_ADDRESS",
