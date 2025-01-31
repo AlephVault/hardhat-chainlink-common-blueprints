@@ -11,7 +11,7 @@ extendEnvironment(hre => {
             super({...options, choices: ["Loading..."]});
             this._loadChoices = async () => {
                 const chainId = await hre.common.getChainId();
-                return loader ? (await loader()).filter((e) => chainId === e.chainId).map((e) => {
+                return loader ? (await loader()).filter((e) => chainId === BigInt(e.chainId)).map((e) => {
                     return {name: e.address, message: e.name};
                 }) : (choices || []).map(e => ({name: e.address, message: e.name}));
             }
