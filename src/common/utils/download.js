@@ -77,5 +77,5 @@ function invalidate(filePath) {
 }
 
 module.exports = {
-    getCachedValues
+    getCachedValues, invalidate
 }

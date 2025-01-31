@@ -145,5 +145,5 @@ function invalidateFeedContracts() {
 }
 
 module.exports = {
-    getFeedContracts, invalidate
+    getFeedContracts, invalidateFeedContracts
 }

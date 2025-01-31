@@ -1,6 +1,6 @@
 const path = require("path");
 const { extendEnvironment } = require("hardhat/config");
-const { getFeedContracts } = require("./utils/download");
+const { getFeedContracts, invalidateFeedContracts } = require("./utils/download");
 
 const baseDir = path.resolve(
     __dirname, "..", "..", "data", "templates", "ignition-modules"
@@ -29,12 +29,28 @@ extendEnvironment((hre) => {
                 message: "Choose the existing feed contract for this network",
                 argumentType: {
                     type: "plus:hardhat:given-or-remote-contract-select",
-                    loader: () => getFeedContracts({force: false})
+                    loader: () => getFeedContracts()
                 }
             }
         ]
     );
 
+    new hre.methodPrompts.CustomPrompt(
+        function([]) {
+            invalidateFeedContracts();
+        }, {
+            onError: (e) => {
+                console.error("There was an error while invalidating the cache (perhaps it does not exist)");
+            },
+            onSuccess: (tx) => {
+                console.log("The cache was successfully invalidated");
+            }
+        }, [], {}
+    ).asTask(
+        "chainlink:price-feed:invalidate-cache",
+        "Invalidates the cache of AggregatorV3Interface / PriceFeed live/test deployed contracts",
+        {onlyExplicitTxOptions: true}
+    );
     new hre.methodPrompts.ContractMethodPrompt(
         "call", "latestRoundData", {
             onError: (e) => {
