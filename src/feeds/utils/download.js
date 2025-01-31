@@ -134,8 +134,7 @@ async function downloadFeedContracts() {
  * @returns {Promise<*[]>} The cache contents (async function).
  */
 async function getFeedContracts() {
-    const filePath = FULL_FEEDS_FILE_PATH;
-    return await getCachedValues(filePath, downloadFeedContracts);
+    return await getCachedValues(FULL_FEEDS_FILE_PATH, downloadFeedContracts);
 }
 
 module.exports = {
