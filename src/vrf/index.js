@@ -3,7 +3,7 @@ const { extendEnvironment } = require("hardhat/config");
 const { getVRFCoordinators, getVRFLaneHashes } = require("./utils/download");
 
 const baseDir = path.resolve(
-    __dirname, "..", "..", "data", "templates", "ignition-modules"
+    __dirname, "..", "..", "data", "templates"
 );
 
 extendEnvironment((hre) => {
@@ -16,7 +16,7 @@ extendEnvironment((hre) => {
 
     hre.blueprints.registerBlueprint(
         "chainlink:vrf:consumer-contract", "VRFConsumerV2Plus", "A Chainlink VRFConsumerV2Plus contract",
-        path.resolve(baseDir, "VRFConsumerV2Plus.sol.template"), "solidity", [
+        path.resolve(baseDir, "solidity", "VRFConsumerV2Plus.sol.template"), "solidity", [
             solidityVersionArgument,
             {
                 name: "CALLBACK_GAS_LIMIT",
@@ -46,8 +46,13 @@ extendEnvironment((hre) => {
     );
     hre.blueprints.registerBlueprint(
         "chainlink:vrf:consumer-deployment", "VRFConsumerV2Plus", "An ignition module for a new Chainlink VRFConsumerV2Plus contract",
-        path.resolve(baseDir, "VRFConsumerV2Plus.js.template"), "solidity", [
-            solidityVersionArgument,
+        path.resolve(baseDir, "ignition-modules", "VRFConsumerV2Plus.js.template"), "ignition-module", [
+            {
+                name: "CONTRACT_NAME",
+                description: "The type to use for the contract",
+                message: "Choose one of your contract artifacts (must be a VRFConsumerV2Plus contract)",
+                argumentType: "contract"
+            },
             {
                 name: "SUBSCRIPTION_ID",
                 description: "The id of the subscription to use",
@@ -59,7 +64,7 @@ extendEnvironment((hre) => {
                 description: "The VRFCoordinator contract",
                 message: "Choose the proper VRF Coordinator contract",
                 argumentType: {
-                    type: "plus:hardhat:given-or-remote-contract-select",
+                    type: "plus:hardhat:given-or-remote-value-select",
                     remoteValueType: "VRF Coordinator contracts",
                     loader: () => getVRFCoordinators()
                 }
@@ -69,7 +74,7 @@ extendEnvironment((hre) => {
                 description: "The gas lane to use",
                 message: "Choose the proper gas lane to use (check Chainlink's docs for the network to understand the gas prices)",
                 argumentType: {
-                    type: "plus:hardhat:given-or-remote-contract-select",
+                    type: "plus:hardhat:given-or-remote-value-select",
                     remoteValueType: "VRF gas lanes",
                     loader: () => getVRFLaneHashes()
                 }

@@ -3,7 +3,7 @@ const { extendEnvironment } = require("hardhat/config");
 const { getFeedContracts, invalidateFeedContracts } = require("./utils/download");
 
 const baseDir = path.resolve(
-    __dirname, "..", "..", "data", "templates", "ignition-modules"
+    __dirname, "..", "..", "data", "templates"
 );
 
 extendEnvironment((hre) => {
@@ -16,13 +16,13 @@ extendEnvironment((hre) => {
 
     hre.blueprints.registerBlueprint(
         "chainlink:feed:feed-mock-contract", "PriceFeedMock", "A Chainlink PriceFeed mock contract",
-        path.resolve(baseDir, "PriceFeedMock.sol.template"), "solidity", [
+        path.resolve(baseDir, "solidity", "PriceFeedMock.sol.template"), "solidity", [
             solidityVersionArgument
         ]
     );
     hre.blueprints.registerBlueprint(
         "chainlink:feed:feed-external-deployment", "AggregatorV3Interface", "An ignition module referencing an existing ChainLink AggregatorV3Interface (PriceFeed or not)",
-        path.resolve(baseDir, "AggregatorV3Interface.js.template"), "ignition-module", [
+        path.resolve(baseDir, "ignition-modules", "AggregatorV3Interface.js.template"), "ignition-module", [
             {
                 name: "CONTRACT_ADDRESS",
                 description: "The address of an existing feed contract",
