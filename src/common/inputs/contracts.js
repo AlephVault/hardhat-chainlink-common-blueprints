@@ -7,11 +7,11 @@ extendEnvironment(hre => {
      * given type.
      */
     class GivenOrRemoteContractSelect extends hre.enquirerPlus.Enquirer.GivenOrSelect {
-        constructor({hre, loader, ...options}) {
+        constructor({loader, ...options}) {
             super({...options, choices: ["Loading..."]});
             this._loadChoices = async () => {
                 const chainId = await hre.common.getChainId();
-                return await loader().filter((e) => chainId === e.chainId).map((e) => {
+                return (await loader()).filter((e) => chainId === e.chainId).map((e) => {
                     return {name: e.address, message: e.name};
                 });
             }
@@ -19,7 +19,7 @@ extendEnvironment(hre => {
 
         async run() {
             this.choices = await this._loadChoices();
-            this.options.choices = deployedContracts;
+            this.options.choices = this.choices;
             return await super.run();
         }
     }
