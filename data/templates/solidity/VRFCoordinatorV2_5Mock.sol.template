@@ -1,3 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity #SOLIDITY_VERSION#;
 import "@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
+
+contract #SCRIPT_NAME# is VRFCoordinatorV2_5Mock {
+    uint96 constant baseFee = #BASE_FEE#;
+    uint96 constant gasPrice = #GAS_PRICE#;
+    int256 constant weiPerUnitLink = #WEI_PER_UNIT_LINK#;
+
+    constructor() VRFCoordinatorV2_5Mock(baseFee, gasPrice, weiPerUnitLink) {}
+}
