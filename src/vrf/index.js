@@ -22,18 +22,21 @@ extendEnvironment((hre) => {
                 name: "CALLBACK_GAS_LIMIT",
                 description: "The max. amount of gas per request",
                 message: "Choose a max. gas amount for the requests (e.g. 4000)",
+                initial: 4000,
                 argumentType: "uint32"
             },
             {
                 name: "REQUEST_CONFIRMATIONS",
                 description: "The number of confirmations",
                 message: "Choose a number of confirmations for the requests (e.g. 3)",
+                initial: 3,
                 argumentType: "uint16"
             },
             {
                 name: "NUM_WORDS",
                 description: "The number of random numbers per request",
                 message: "Choose how many random numbers will be generated per request (e.g. 1)",
+                initial: 1,
                 argumentType: "uint32"
             },
             {
@@ -41,6 +44,33 @@ extendEnvironment((hre) => {
                 description: "Whether to consume native payments (true, yes) or LINK payments (false, no) from the subscription",
                 message: "Will this contract consume Native tokens from the subscription? (if not, it will use LINK tokens)",
                 argumentType: "boolean"
+            }
+        ]
+    );
+    hre.blueprints.registerBlueprint(
+        "chainlink:vrf:coordinator-mock-contract", "VRFCoordinatorV2PlusMock", "A Chainlink VRFCoordinatorV2_5 mock contract",
+        path.resolve(baseDir, "solidity", "VRFCoordinatorV2_5Mock.sol.template"), "solidity", [
+            solidityVersionArgument,
+            {
+                name: "BASE_FEE",
+                description: "The base fee for requests, expressed in LINK fractions",
+                message: "Choose a max. gas amount for the requests",
+                argumentType: "uint96",
+                initial: 100000000000000000n
+            },
+            {
+                name: "GAS_PRICE",
+                description: "The gas price for requests, expressed in LINK fractions",
+                message: "Choose a number of confirmations for the requests",
+                argumentType: "uint96",
+                initial: 1000000000n
+            },
+            {
+                name: "WEI_PER_UNIT_LINK",
+                description: "The LINK/NATIVE rate",
+                message: "Choose the amount of native wei that costs a single LINK token",
+                argumentType: "int256",
+                initial: 7500000000000000n
             }
         ]
     );
