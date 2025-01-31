@@ -111,4 +111,31 @@ extendEnvironment((hre) => {
             }
         ]
     );
+
+    // TODO:
+    // Task to invoke: function createSubscription() external returns (uint256 subId)
+    // Task to invoke: function addConsumer(uint256 subId, address consumer) external
+    // Task to invoke: function removeConsumer(uint256 subId, address consumer) external
+    // [ONLY IN A MOCK]
+    // Task to invoke: function fundSubscription(uint256 _subId, uint256 _amount) public
+    // [ONLY IN A MOCK]
+    // Task to list SubscriptionCreated events (with indexed: subId)
+    // >>> For each, listing the prices with getSubscription(subId) returning:
+    //     (uint96 balance, uint96 nativeBalance, uint64 reqCount, address subOwner, address[] memory consumers)
+    // Task to invoke: function getSubscription(uint256 subId) public returns (... same as before ...)
+    // Task to invoke: function fulfillRandomWords(uint256 _requestId, address _consumer) external
+    // [ONLY IN A MOCK]
+    // Task to launch a worker which attends these events:
+    //     event RandomWordsRequested(
+    //         bytes32 indexed keyHash,
+    //         uint256 requestId,
+    //         uint256 preSeed,
+    //         uint256 indexed subId,
+    //         uint16 minimumRequestConfirmations,
+    //         uint32 callbackGasLimit,
+    //         uint32 numWords,
+    //         bytes extraArgs,
+    //         address indexed sender
+    //     );
+    // and based on it invokes the fulfillRandomWords(requestId, sender) method.
 });
