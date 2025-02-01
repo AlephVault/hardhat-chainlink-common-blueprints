@@ -103,7 +103,7 @@ extendEnvironment((hre) => {
     );
     hre.blueprints.registerBlueprint(
         "chainlink:vrf:nonlocal-consumer-deployment", "VRFConsumerV2Plus", "An ignition module for a new Chainlink VRFConsumerV2Plus contract to be deployed in the local network",
-        path.resolve(baseDir, "ignition-modules", "VRFConsumerV2Plus.js.template"), "ignition-module", [
+        path.resolve(baseDir, "ignition-modules", "VRFConsumerV2Plus.NonLocal.js.template"), "ignition-module", [
             {
                 name: "CONTRACT_NAME",
                 description: "The type to use for the contract",
