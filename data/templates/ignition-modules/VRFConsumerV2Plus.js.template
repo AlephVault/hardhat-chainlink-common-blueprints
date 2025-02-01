@@ -11,7 +11,7 @@ module.exports = buildModule("#SCRIPT_NAME#", (m) => {
   // const foo = m.getParameter("foo", "someValue");
   //
   // These 3 are needed for VRF consumer V2Plus contracts:
-  const vrfCoordinator = "#VRF_COORDINATOR#";
+  const vrfCoordinatorAddress = "#VRF_COORDINATOR#";
   // Since this deployment is intended to be run in the LOCAL network,
   // the keyHash doesn't matter. The coordinator mock does not make
   // use of this value since the gas price is only meaningful in live
@@ -44,8 +44,10 @@ module.exports = buildModule("#SCRIPT_NAME#", (m) => {
   // will be passed directly to the constructor.
 
   const contract = m.contract(
-    "#CONTRACT_NAME#", [subscriptionId, vrfCoordinator, keyHash]
+    "#CONTRACT_NAME#", [subscriptionId, vrfCoordinatorAddress, keyHash]
   );
+  const vrfCoordinator = m.contractAt("VRFCoordinatorV2_5Mock", vrfCoordinatorAddress);
+  m.call(vrfCoordinator, "addConsumer", [subscriptionId, contract]);
 
   // In this case, the result is a single object having a contract: key
   // which contains the future. When Ignition deployment is invoked and
