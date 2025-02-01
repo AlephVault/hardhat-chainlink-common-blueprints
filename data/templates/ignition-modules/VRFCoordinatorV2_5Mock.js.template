@@ -1,0 +1,24 @@
+const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
+
+module.exports = buildModule("#SCRIPT_NAME#", (m) => {
+  const contract = m.contract(
+    "#CONTRACT_NAME#", []
+  );
+
+  // Edit this file to add many calls like this one but
+  // for any amount of subscription ids. Remember that
+  // this is a mock contract and should not be used in
+  // test/live networks.
+  //
+  // In this example, this call creates a subscription
+  // with number 12345. Create as many subscriptions
+  // as needed.
+  //
+  // m.call(contract, "createSubscription", [12345]);
+  //
+  // And also fund them properly:
+  //
+  // m.call(contract, "fundSubscription", [12345, "1000000000000000000000000"]);
+
+  return { contract };
+});

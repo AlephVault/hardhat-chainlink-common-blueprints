@@ -102,7 +102,7 @@ extendEnvironment((hre) => {
         ]
     );
     hre.blueprints.registerBlueprint(
-        "chainlink:vrf:nonlocal-consumer-deployment", "VRFConsumerV2Plus", "An ignition module for a new Chainlink VRFConsumerV2Plus contract to be deployed in the local network",
+        "chainlink:vrf:consumer-nonlocal-deployment", "VRFConsumerV2Plus", "An ignition module for a new Chainlink VRFConsumerV2Plus contract to be deployed in the local network",
         path.resolve(baseDir, "ignition-modules", "VRFConsumerV2Plus.NonLocal.js.template"), "ignition-module", [
             {
                 name: "CONTRACT_NAME",
@@ -139,13 +139,29 @@ extendEnvironment((hre) => {
             }
         ]
     );
+    hre.blueprints.registerBlueprint(
+        "chainlink:vrf:coordinator-mock-deployment", "VRFCoordinatorV2_5Mock", "An ignition module for a new Chainlink VRFCoordinatoeV2_5Mock contract to be deployed in the local network",
+        path.resolve(baseDir, "ignition-modules", "VRFCoordinatorV2_5Mock.js.template"),
+        "ignition-module", [
+            {
+                name: "CONTRACT_NAME",
+                description: "The type to use for the contract",
+                message: "Choose one of your contract artifacts (it must be a VRFCoordinatorV2_5Mock contract)",
+                argumentType: "contract"
+            }
+        ]
+    );
+
+    // Just for future considerations, the subscriptions API has
+    // these methods for mock and non-mock:
+    // - function addConsumer(uint256 subId, address consumer) external
+    // - function removeConsumer(uint256 subId, address consumer) external
+
+    // Also, it's worth considering this method in mocks to fund the
+    // subscriptions:
+    // - function fundSubscription(uint256 _subId, uint256 _amount) public
 
     // TODO:
-    // Task to invoke: function addConsumer(uint256 subId, address consumer) external
-    // Task to invoke: function removeConsumer(uint256 subId, address consumer) external
-    // [ONLY IN A MOCK]
-    // Task to invoke: function fundSubscription(uint256 _subId, uint256 _amount) public
-    // [ONLY IN A MOCK]
     // Task to list SubscriptionCreated events (with indexed: subId)
     // >>> For each, listing the prices with getSubscription(subId) returning:
     //     (uint96 balance, uint96 nativeBalance, uint64 reqCount, address subOwner, address[] memory consumers)
