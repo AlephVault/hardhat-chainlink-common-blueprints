@@ -75,7 +75,7 @@ extendEnvironment((hre) => {
         ]
     );
     hre.blueprints.registerBlueprint(
-        "chainlink:vrf:consumer-deployment", "VRFConsumerV2Plus", "An ignition module for a new Chainlink VRFConsumerV2Plus contract",
+        "chainlink:vrf:consumer-deployment", "VRFConsumerV2Plus", "An ignition module for a new Chainlink VRFConsumerV2Plus contract to be deployed in the local network",
         path.resolve(baseDir, "ignition-modules", "VRFConsumerV2Plus.js.template"), "ignition-module", [
             {
                 name: "CONTRACT_NAME",
@@ -88,6 +88,34 @@ extendEnvironment((hre) => {
                 description: "The id of the subscription to use",
                 message: "Choose the id of the subscription to use (it must belong to the current network)",
                 argumentType: "uint256"
+            },
+            {
+                name: "VRF_COORDINATOR",
+                description: "The VRFCoordinator contract",
+                message: "Choose the proper VRF Coordinator contract",
+                argumentType: {
+                    type: "plus:hardhat:given-or-remote-value-select",
+                    remoteValueType: "VRF Coordinator contracts",
+                    loader: () => getVRFCoordinators()
+                }
+            }
+        ]
+    );
+    hre.blueprints.registerBlueprint(
+        "chainlink:vrf:nonlocal-consumer-deployment", "VRFConsumerV2Plus", "An ignition module for a new Chainlink VRFConsumerV2Plus contract to be deployed in the local network",
+        path.resolve(baseDir, "ignition-modules", "VRFConsumerV2Plus.js.template"), "ignition-module", [
+            {
+                name: "CONTRACT_NAME",
+                description: "The type to use for the contract",
+                message: "Choose one of your contract artifacts (must be a VRFConsumerV2Plus contract)",
+                argumentType: "contract"
+            },
+            {
+                name: "SUBSCRIPTION_IGNITION_PARAMETER",
+                initial: "subscriptionId",
+                description: "The name of the ignition parameter that will hold the subscription id for this contract",
+                message: "Choose a name for an ignition parameter that will hold the subscription id for this contract",
+                argumentType: "identifier"
             },
             {
                 name: "VRF_COORDINATOR",
@@ -113,7 +141,6 @@ extendEnvironment((hre) => {
     );
 
     // TODO:
-    // Task to invoke: function createSubscription() external returns (uint256 subId)
     // Task to invoke: function addConsumer(uint256 subId, address consumer) external
     // Task to invoke: function removeConsumer(uint256 subId, address consumer) external
     // [ONLY IN A MOCK]
