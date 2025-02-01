@@ -54,14 +54,14 @@ extendEnvironment((hre) => {
             {
                 name: "BASE_FEE",
                 description: "The base fee for requests, expressed in LINK fractions",
-                message: "Choose a max. gas amount for the requests",
+                message: "Choose a base fee for the requests",
                 argumentType: "uint96",
                 initial: 100000000000000000n
             },
             {
                 name: "GAS_PRICE",
                 description: "The gas price for requests, expressed in LINK fractions",
-                message: "Choose a number of confirmations for the requests",
+                message: "Choose a gas price for the requests",
                 argumentType: "uint96",
                 initial: 1000000000n
             },
@@ -152,14 +152,110 @@ extendEnvironment((hre) => {
         ]
     );
 
-    // Just for future considerations, the subscriptions API has
-    // these methods for mock and non-mock:
-    // - function addConsumer(uint256 subId, address consumer) external
-    // - function removeConsumer(uint256 subId, address consumer) external
-
-    // Also, it's worth considering this method in mocks to fund the
-    // subscriptions:
-    // - function fundSubscription(uint256 _subId, uint256 _amount) public
+    new hre.methodPrompts.ContractMethodPrompt(
+        "send", "addConsumer", {
+            onError: (e) => {
+                console.error("There was an error while running this method");
+                console.error(e);
+            },
+            onSuccess: (tx) => {
+                console.log("tx:", tx);
+            }
+        }, [
+            {
+                name: "subscriptionId",
+                description: "The id of the subscription to add the consumer contract address to",
+                message: "Choose the id of the subscription to add the consumer contract address to",
+                argumentType: "uint256"
+            },
+            {
+                name: "consumerAddress",
+                description: "The address of the consumer contract (intended for VRFConsumerV2Plus contracts)",
+                message: "Choose the address of the consumer contract (a VRFConsumerV2Plus one, here)",
+                argumentType: "uint256"
+            }
+        ], {}
+    ).asTask(
+        "chainlink:vrf:add-subscription-consumer",
+        "Invokes addConsumer on a VRF coordinator 2.5 contract for a given consumer"
+    );
+    new hre.methodPrompts.ContractMethodPrompt(
+        "send", "removeConsumer", {
+            onError: (e) => {
+                console.error("There was an error while running this method");
+                console.error(e);
+            },
+            onSuccess: (tx) => {
+                console.log("tx:", tx);
+            }
+        }, [
+            {
+                name: "subscriptionId",
+                description: "The id of the subscription to remove the consumer contract address from",
+                message: "Choose the id of the subscription to remove the consumer contract address from",
+                argumentType: "uint256"
+            },
+            {
+                name: "consumerAddress",
+                description: "The address of the consumer contract (intended for VRFConsumerV2Plus contracts)",
+                message: "Choose the address of the consumer contract (a VRFConsumerV2Plus one, here)",
+                argumentType: "uint256"
+            }
+        ], {}
+    ).asTask(
+        "chainlink:vrf:remove-subscription-consumer",
+        "Invokes removeConsumer on a VRF coordinator 2.5 contract for a given VRFConsumerV2Plus contract"
+    );
+    new hre.methodPrompts.ContractMethodPrompt(
+        "send", "fundSubscription", {
+            onError: (e) => {
+                console.error("There was an error while running this method");
+                console.error(e);
+            },
+            onSuccess: (tx) => {
+                console.log("tx:", tx);
+            }
+        }, [
+            {
+                name: "subscriptionId",
+                description: "The id of the subscription to fund (with LINK)",
+                message: "Choose the id of the subscription to fund (with LINK)",
+                argumentType: "uint256"
+            },
+            {
+                name: "amount",
+                description: "The amount to FUND, expressed in LINK fractions",
+                message: "Choose the amount to FUND (in fractions - 1e18 means 1 LINK)",
+                argumentType: "uint256"
+            }
+        ], {}
+    ).asTask(
+        "chainlink:vrf:fund-subscription",
+        "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the LINK balance"
+    );
+    new hre.methodPrompts.ContractMethodPrompt(
+        "send", "fundSubscriptionWithNative", {
+            onError: (e) => {
+                console.error("There was an error while running this method");
+                console.error(e);
+            },
+            onSuccess: (tx) => {
+                console.log("tx:", tx);
+            }
+        }, [
+            {
+                name: "subscriptionId",
+                description: "The id of the subscription to fund (with LINK)",
+                message: "Choose the id of the subscription to fund (with LINK)",
+                argumentType: "uint256"
+            }
+        ], {
+            value: {onAbsent: "prompt"}
+        }
+    ).asTask(
+        "chainlink:vrf:fund-subscription-with-native",
+        "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the native balance"
+    );
 
     // TODO:
     // Task to list SubscriptionCreated events (with indexed: subId)
