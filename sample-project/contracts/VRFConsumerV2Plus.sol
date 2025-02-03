@@ -19,7 +19,7 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
     uint32 constant callbackGasLimit = 4000; // Default: 4000
     uint16 constant requestConfirmations = 3; // Default: 3
     uint32 constant numWords = 1; // Default: 1
-    bool constant nativePayments = false; // Defailt: false
+    bool constant nativePayments = false; // Default: false
 
     // These are per-environment values: The subscription
     // id, the address of the coordinator of this random

@@ -19,7 +19,7 @@ contract #SCRIPT_NAME# is VRFConsumerBaseV2Plus {
     uint32 constant callbackGasLimit = #CALLBACK_GAS_LIMIT#; // Default: 4000
     uint16 constant requestConfirmations = #REQUEST_CONFIRMATIONS#; // Default: 3
     uint32 constant numWords = #NUM_WORDS#; // Default: 1
-    bool constant nativePayments = #USE_NATIVE_PAYMENTS#; // Defailt: false
+    bool constant nativePayments = #USE_NATIVE_PAYMENTS#; // Default: false
 
     // These are per-environment values: The subscription
     // id, the address of the coordinator of this random
