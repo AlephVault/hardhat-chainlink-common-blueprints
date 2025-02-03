@@ -86,18 +86,14 @@ extendEnvironment((hre) => {
             {
                 name: "SUBSCRIPTION_ID",
                 description: "The id of the subscription to use",
-                message: "Choose the id of the subscription to use (it must belong to the current network)",
+                message: "Choose the id of the subscription to use (it can be an arbitrary value)",
                 argumentType: "uint256"
             },
             {
                 name: "VRF_COORDINATOR",
                 description: "The VRFCoordinator contract",
                 message: "Choose the proper VRF Coordinator contract",
-                argumentType: {
-                    type: "plus:hardhat:given-or-remote-value-select",
-                    remoteValueType: "VRF Coordinator contracts",
-                    loader: () => getVRFCoordinators()
-                }
+                argumentType: "contract"
             }
         ]
     );
