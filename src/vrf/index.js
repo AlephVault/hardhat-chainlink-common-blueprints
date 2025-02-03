@@ -1,6 +1,6 @@
 const path = require("path");
-const { extendEnvironment } = require("hardhat/config");
-const { getVRFCoordinators, getVRFLaneHashes } = require("./utils/download");
+const {extendEnvironment} = require("hardhat/config");
+const {getVRFCoordinators, getVRFLaneHashes} = require("./utils/download");
 
 const baseDir = path.resolve(
     __dirname, "..", "..", "data", "templates"
@@ -119,9 +119,9 @@ extendEnvironment((hre) => {
                     argumentType: "uint256"
                 },
                 {
-                    name: "VRF_COORDINATOR",
-                    description: "The VRFCoordinator contract",
-                    message: "Choose the proper VRF Coordinator contract",
+                    name: "VRF_COORDINATOR_FILE",
+                    description: "The VRFCoordinator deployment file",
+                    message: "Choose the proper VRF Coordinator deployment file",
                     argumentType: "contract"
                 }
             ]
