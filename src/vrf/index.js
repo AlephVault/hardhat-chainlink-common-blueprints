@@ -102,7 +102,7 @@ extendEnvironment((hre) => {
         ]
     );
     hre.blueprints.registerBlueprint(
-        "chainlink:vrf:consumer-nonlocal-deployment", "VRFConsumerV2Plus", "An ignition module for a new Chainlink VRFConsumerV2Plus contract to be deployed in the local network",
+        "chainlink:vrf:consumer-nonlocal-deployment", "VRFConsumerV2Plus", "An ignition module for a new Chainlink VRFConsumerV2Plus contract to be deployed in a remote network",
         path.resolve(baseDir, "ignition-modules", "VRFConsumerV2Plus.NonLocal.js.template"), "ignition-module", [
             {
                 name: "CONTRACT_NAME",
@@ -256,6 +256,14 @@ extendEnvironment((hre) => {
         "chainlink:vrf:fund-subscription-with-native",
         "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the native balance"
     );
+
+    //         args: deploymentId, deployedContractId
+    //
+    //         const deploymentContractId = await new this._hre.enquirerPlus.Enquirer.GivenOrDeployedContractSelect({
+    //             deploymentId, message: "Select one of your deployed contracts:", given: deployedContractId
+    //         }).run();
+    //
+    //         const contract = await this._hre.ignition.getDeployedContract(deploymentContractId, deploymentId);
 
     // TODO:
     // Task to list SubscriptionCreated events (with indexed: subId)
