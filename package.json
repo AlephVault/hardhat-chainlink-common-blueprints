@@ -1,5 +1,5 @@
 {
-  "name": "hardhat-chainlink-contracts",
+  "name": "hardhat-chainlink-common-blueprints",
   "version": "1.0.0",
   "description": "A hardhat plugin providing helpers to play with mocks of Chainlink services",
   "main": "src/index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AlephVault/hardhat-chainlink-contracts.git"
+    "url": "git+https://github.com/AlephVault/hardhat-chainlink-common-blueprints.git"
   },
   "keywords": [
     "hardhat",
@@ -18,9 +18,9 @@
   "author": "Luis Masuelli",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/AlephVault/hardhat-chainlink-contracts/issues"
+    "url": "https://github.com/AlephVault/hardhat-chainlink-common-blueprints/issues"
   },
-  "homepage": "https://github.com/AlephVault/hardhat-chainlink-contracts#readme",
+  "homepage": "https://github.com/AlephVault/hardhat-chainlink-common-blueprints#readme",
   "peerDependencies": {
     "@chainlink/contracts": "^1.3.0",
     "hardhat": "^2.22.6",
