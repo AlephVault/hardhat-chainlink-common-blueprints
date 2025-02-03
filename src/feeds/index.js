@@ -14,28 +14,6 @@ extendEnvironment((hre) => {
         argumentType: "solidity"
     };
 
-    hre.blueprints.registerBlueprint(
-        "chainlink:feed:feed-mock-contract", "PriceFeedMock", "A Chainlink PriceFeed mock contract",
-        path.resolve(baseDir, "solidity", "PriceFeedMock.sol.template"), "solidity", [
-            solidityVersionArgument
-        ]
-    );
-    hre.blueprints.registerBlueprint(
-        "chainlink:feed:feed-external-deployment", "AggregatorV3Interface", "An ignition module referencing an existing ChainLink AggregatorV3Interface (PriceFeed or not)",
-        path.resolve(baseDir, "ignition-modules", "AggregatorV3Interface.js.template"), "ignition-module", [
-            {
-                name: "CONTRACT_ADDRESS",
-                description: "The address of an existing feed contract",
-                message: "Choose the existing feed contract for this network",
-                argumentType: {
-                    type: "plus:hardhat:given-or-remote-contract-select",
-                    remoteValueType: "Feed contracts",
-                    loader: () => getFeedContracts()
-                }
-            }
-        ]
-    );
-
     new hre.methodPrompts.CustomPrompt(
         function([]) {
             invalidateFeedContracts();
@@ -85,25 +63,50 @@ extendEnvironment((hre) => {
         "chainlink:price-feed:get-round-data",
         "Invokes getRoundData(uint80) on an AggregatorV3Interface-implementing (i.e. Price Feed) contract"
     );
-    new hre.methodPrompts.ContractMethodPrompt(
-        "send", "setAnswer", {
-            onError: (e) => {
-                console.error("There was an error while running this method (probably not a PriceFeed mock)");
-                console.error(e);
-            },
-            onSuccess: (tx) => {
-                console.log("Answer set successfully. Transaction is:", tx);
-            }
-        }, [{
-            name: "answer",
-            description: "The value to set",
-            message: "What's the new value to set?",
-            argumentType: "int256"
-        }], {}
-    ).asTask(
-        "chainlink:price-feed:set-answer",
-        "Invokes setAnswer(int256) on an AggregatorV3Interface-implementing (i.e. Price Feed) contract"
-    );
+
+    if (["hardhat", "localhost"].includes(hre.network.name)) {
+        hre.blueprints.registerBlueprint(
+            "chainlink:feed:feed-mock-contract", "PriceFeedMock", "A Chainlink PriceFeed mock contract",
+            path.resolve(baseDir, "solidity", "PriceFeedMock.sol.template"), "solidity", [
+                solidityVersionArgument
+            ]
+        );
+        new hre.methodPrompts.ContractMethodPrompt(
+            "send", "setAnswer", {
+                onError: (e) => {
+                    console.error("There was an error while running this method (probably not a PriceFeed mock)");
+                    console.error(e);
+                },
+                onSuccess: (tx) => {
+                    console.log("Answer set successfully. Transaction is:", tx);
+                }
+            }, [{
+                name: "answer",
+                description: "The value to set",
+                message: "What's the new value to set?",
+                argumentType: "int256"
+            }], {}
+        ).asTask(
+            "chainlink:price-feed:set-answer",
+            "Invokes setAnswer(int256) on an AggregatorV3Interface-implementing (i.e. Price Feed) contract"
+        );
+    } else{
+        hre.blueprints.registerBlueprint(
+            "chainlink:feed:feed-external-deployment", "AggregatorV3Interface", "An ignition module referencing an existing ChainLink AggregatorV3Interface (PriceFeed or not)",
+            path.resolve(baseDir, "ignition-modules", "AggregatorV3Interface.js.template"), "ignition-module", [
+                {
+                    name: "CONTRACT_ADDRESS",
+                    description: "The address of an existing feed contract",
+                    message: "Choose the existing feed contract for this network",
+                    argumentType: {
+                        type: "plus:hardhat:given-or-remote-contract-select",
+                        remoteValueType: "Feed contracts",
+                        loader: () => getFeedContracts()
+                    }
+                }
+            ]
+        );
+    }
 });
 
 module.exports = {};
