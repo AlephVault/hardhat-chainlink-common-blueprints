@@ -1,4 +1,13 @@
 const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
+const path = require("path");
+let relativePath = path.relative(
+    __dirname, path.resolve(
+        require("hardhat").config.paths.root, "ignition", "modules",
+        "#VRF_COORDINATOR_MODULE#".replaceAll("\\", "/")
+    )
+);
+if (!relativePath.startsWith(".")) relativePath = "./" + relativePath;
+const vrfCoordinatorModule = require(relativePath);
 
 module.exports = buildModule("#SCRIPT_NAME#", (m) => {
   // You can pass parameters (e.g. "foo") to this module and attend
@@ -9,9 +18,7 @@ module.exports = buildModule("#SCRIPT_NAME#", (m) => {
   // which can be numbers, boolean values, strings or null)
   //
   // const foo = m.getParameter("foo", "someValue");
-  //
-  // These 3 are needed for VRF consumer V2Plus contracts:
-  const vrfCoordinatorAddress = "#VRF_COORDINATOR#";
+
   // Since this deployment is intended to be run in the LOCAL network,
   // the keyHash doesn't matter. The coordinator mock does not make
   // use of this value since the gas price is only meaningful in live
@@ -46,7 +53,7 @@ module.exports = buildModule("#SCRIPT_NAME#", (m) => {
   const contract = m.contract(
     "#CONTRACT_NAME#", [subscriptionId, vrfCoordinatorAddress, keyHash]
   );
-  const vrfCoordinator = m.contractAt("VRFCoordinatorV2_5Mock", vrfCoordinatorAddress);
+  const vrfCoordinator = m.useModule(vrfCoordinatorModule).contract;
   m.call(vrfCoordinator, "addConsumer", [subscriptionId, contract]);
 
   // In this case, the result is a single object having a contract: key
