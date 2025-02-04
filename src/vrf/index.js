@@ -105,7 +105,7 @@ extendEnvironment((hre) => {
 
     if (["hardhat", "localhost"].includes(hre.network.name)) {
         hre.blueprints.registerBlueprint(
-            "chainlink:vrf:consumer-deployment", "VRFConsumerV2Plus", "An ignition module for a new Chainlink VRFConsumerV2Plus contract to be deployed in the local network",
+            "chainlink:vrf:consumer-deployment", "VRFConsumerV2Plus", "A Chainlink VRFConsumerV2Plus deployment module to be used in the local network",
             path.resolve(baseDir, "ignition-modules", "VRFConsumerV2Plus.js.template"), "ignition-module", [
                 {
                     name: "CONTRACT_NAME",
@@ -131,7 +131,7 @@ extendEnvironment((hre) => {
             ]
         );
         hre.blueprints.registerBlueprint(
-            "chainlink:vrf:coordinator-mock-contract", "VRFCoordinatorV2PlusMock", "A Chainlink VRFCoordinatorV2_5 mock contract",
+            "chainlink:vrf:coordinator-mock-contract", "VRFCoordinatorV2PlusMock", "A Chainlink VRFCoordinatorV2_5Mock contract to be used in the local network",
             path.resolve(baseDir, "solidity", "VRFCoordinatorV2_5Mock.sol.template"), "solidity", [
                 solidityVersionArgument,
                 {
@@ -158,7 +158,7 @@ extendEnvironment((hre) => {
             ]
         );
         hre.blueprints.registerBlueprint(
-            "chainlink:vrf:coordinator-mock-deployment", "VRFCoordinatorV2_5Mock", "An ignition module for a new Chainlink VRFCoordinatoeV2_5Mock contract to be deployed in the local network",
+            "chainlink:vrf:coordinator-mock-deployment", "VRFCoordinatorV2_5Mock", "A Chainlink VRFCoordinatoeV2_5Mock deployment module to be used in the local network",
             path.resolve(baseDir, "ignition-modules", "VRFCoordinatorV2_5Mock.js.template"),
             "ignition-module", [
                 {
@@ -171,7 +171,7 @@ extendEnvironment((hre) => {
         );
     } else {
         hre.blueprints.registerBlueprint(
-            "chainlink:vrf:consumer-deployment", "VRFConsumerV2Plus", "An ignition module for a new Chainlink VRFConsumerV2Plus contract to be deployed in a remote network",
+            "chainlink:vrf:consumer-deployment", "VRFConsumerV2Plus", "A Chainlink VRFConsumerV2Plus deployment module to be used in a remote network",
             path.resolve(baseDir, "ignition-modules", "VRFConsumerV2Plus.NonLocal.js.template"), "ignition-module", [
                 {
                     name: "CONTRACT_NAME",

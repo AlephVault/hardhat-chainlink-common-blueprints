@@ -66,7 +66,7 @@ extendEnvironment((hre) => {
 
     if (["hardhat", "localhost"].includes(hre.network.name)) {
         hre.blueprints.registerBlueprint(
-            "chainlink:feed:feed-mock-contract", "PriceFeedMock", "A Chainlink PriceFeed mock contract",
+            "chainlink:feed:feed-mock-contract", "PriceFeedMock", "A Chainlink PriceFeed mock contract to be used in the local network",
             path.resolve(baseDir, "solidity", "PriceFeedMock.sol.template"), "solidity", [
                 solidityVersionArgument
             ]
