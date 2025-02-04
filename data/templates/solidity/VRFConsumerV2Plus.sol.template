@@ -79,7 +79,7 @@ contract #SCRIPT_NAME# is VRFConsumerBaseV2Plus {
 
     // Add more parameters to this constructor when needed.
     constructor(uint256 _subscriptionId, address _vrfCoordinator, bytes32 _keyHash)
-        VRFConsumerBaseV2Plus(vrfCoordinator)
+        VRFConsumerBaseV2Plus(_vrfCoordinator)
     {
         subscriptionId = _subscriptionId;
         vrfCoordinator = _vrfCoordinator;
