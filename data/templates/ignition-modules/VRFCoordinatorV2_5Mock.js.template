@@ -14,7 +14,7 @@ module.exports = buildModule("#SCRIPT_NAME#", (m) => {
   // with number 12345. Create as many subscriptions
   // as needed.
   //
-  // m.call(contract, "createSubscription", [12345]);
+  // m.call(contract, "createSubscription(uint256)", [12345]);
   //
   // And also fund them properly:
   //
