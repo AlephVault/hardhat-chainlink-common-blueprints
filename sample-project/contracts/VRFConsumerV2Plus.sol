@@ -5,10 +5,8 @@ import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFCo
 import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 
 /**
- * This contract is a VRF consumer. This is a default implementation that
- * can be changed later at user's please (as long as the call to
- * `requestRandomWords` is done, it will work and the user can tune it
- * to have many call implementations).
+ * This contract is a VRF consumer. This is a sample that
+ * was modified slightly to match some dummy needs.
  */
 contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
     // Constants related to the code & consumption model
@@ -16,7 +14,7 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
     // them to actual variables and arguments if you need
     // to make them per-network, but ensure you respect
     // the identifier names in the process.
-    uint32 constant callbackGasLimit = 4000; // Default: 4000
+    uint32 constant callbackGasLimit = 1000000; // Default: 3000000
     uint16 constant requestConfirmations = 3; // Default: 3
     uint32 constant numWords = 1; // Default: 1
     bool constant nativePayments = false; // Default: false
@@ -65,17 +63,25 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
      */
     struct Request {
         /**
+         * The random value.
+         */
+        uint256 value;
+        /**
          * The status of the request. Check against Invalid to detect whether
          * a given request ID was never issued.
          */
         RequestStatus status;
-        // Add more variables you deem useful here.
     }
 
     /**
      * The in-progress and fulfilled requests.
      */
     mapping(uint256 => Request) private requests;
+
+    /**
+     * An internal mapping of a name => the id of a request.
+     */
+    mapping(string => uint256) private nameToRequestId;
 
     // Add more parameters to this constructor when needed.
     constructor(uint256 _subscriptionId, address _vrfCoordinator, bytes32 _keyHash)
@@ -97,7 +103,7 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
     // must be modified enough so it is not freely invokable by
     // external users or contracts, but by certain rules instead
     // (e.g. as part of a game-related request).
-    function triggerDAPPRequest() internal {
+    function triggerDAPPRequest() internal returns (uint256) {
         // Add any prior logic here.
 
         uint256 requestId = s_vrfCoordinator.requestRandomWords(
@@ -122,11 +128,22 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
         // wasted money and, of course, it is a bug.
         // Custom data is allowed and typically recommended depending on
         // the dapp's logic.
-        requests[requestId] = Request({status: RequestStatus.Pending});
+        requests[requestId] = Request({status: RequestStatus.Pending, value: 0});
 
         // Emit the custom event, perhaps adding more data. This is
         // optional but a typically useful use case.
         emit RequestStarted(requestId);
+
+        return requestId;
+    }
+
+    function launchRequest(string calldata name) external {
+        require(nameToRequestId[name] == 0, "Request already sent");
+        nameToRequestId[name] = triggerDAPPRequest();
+    }
+
+    function getRequestValue(string calldata name) external view returns (Request memory) {
+        return requests[nameToRequestId[name]];
     }
 
     /**
@@ -141,6 +158,7 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
         // will exist, as long as it is properly stored on launch.
         Request storage request = requests[requestId];
         request.status = RequestStatus.Completed;
+        request.value = randomWords[0];
         // Fulfilling will involve setting more data in the request.
 
         // Emit the custom event, perhaps adding more data. This is
