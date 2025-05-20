@@ -119,11 +119,11 @@ extendEnvironment((hre) => {
                     console.log("Subscription id:", subId);
                 })
             }
-        }
+        }, [], {}
     ).asTask(
         "chainlink:vrf:list-subscriptions",
         "Lists the subscriptions from a VRF coordinator V2 / V2.5 contract"
-    )
+    );
 
     new hre.methodPrompts.ContractMethodPrompt(
         "call", "getSubscription", {
@@ -142,11 +142,11 @@ extendEnvironment((hre) => {
                 message: "Choose the id of the subscription to retrieve",
                 argumentType: "uint256"
             },
-        ]
+        ], {}
     ).asTask(
         "chainlink:vrf:get-subscription",
         "Invokes getSubscription on a VRF coordinator V2 / V2.5 contract"
-    )
+    );
 
     if (["hardhat", "localhost"].includes(hre.network.name)) {
         hre.blueprints.registerBlueprint(
@@ -215,6 +215,54 @@ extendEnvironment((hre) => {
                     argumentType: "contract"
                 }
             ]
+        );
+
+        new hre.methodPrompts.ContractMethodPrompt(
+            "custom", async (contract) => {
+                return await hre.common.getLogs(contract, "RandomWordsRequested");
+            }, {
+                onError: (e) => {
+                    console.error("There was an error while running this method");
+                    console.error(e);
+                },
+                onSuccess: (data) => {
+                    console.log(`Requests: ${data.length || 'no'} elements`);
+                    data.forEach(({args: {requestId}}) => {
+                        console.log("Request id:", requestId);
+                    })
+                }
+            }, [], {}
+        ).asTask(
+            "chainlink:vrf:list-requests",
+            "Lists the requests from a VRF coordinator V2 / V2.5 contract"
+        );
+
+        new hre.methodPrompts.ContractMethodPrompt(
+            "send", "fulfillRandomWords", {
+                onError: (e) => {
+                    console.error("There was an error while running this method");
+                    console.error(e);
+                },
+                onSuccess: (tx) => {
+                    console.log("tx:", tx);
+                }
+            }, [
+                {
+                    name: "requestId",
+                    description: "The id of the request to fulfill",
+                    message: "Choose the id of the request to fulfill",
+                    argumentType: "uint256"
+                },
+                {
+                    name: "consumerAddress",
+                    description: "The related consumer contract (it MUST manually match for this mock!)",
+                    message: "Choose one of your contract artifacts (must be a VRFConsumer V2 / V2Plus contract)",
+                    argumentType: "contract"
+                }
+            ], {}
+        ).asTask(
+            "chainlink:vrf:fulfill-random-words",
+            "Fulfills a random words request in a VRF coordinator V2 / V2.5 MOCK contract"
         );
     } else {
         hre.blueprints.registerBlueprint(
