@@ -22,8 +22,8 @@ extendEnvironment((hre) => {
             {
                 name: "CALLBACK_GAS_LIMIT",
                 description: "The max. amount of gas per request",
-                message: "Choose a max. gas amount for the requests (e.g. 4000)",
-                initial: 4000,
+                message: "Choose a max. gas amount for the requests (e.g. 1000000)",
+                initial: 1000000,
                 argumentType: "uint32"
             },
             {
@@ -239,21 +239,26 @@ extendEnvironment((hre) => {
 
         new hre.methodPrompts.ContractMethodPrompt(
             "custom", async (contract, _, txOptions) => {
-                await hre.common.watchLogs(contract, "RandomWordsRequested", [],
+                const stopper = await hre.common.watchLogs(contract, "RandomWordsRequested", [],
                                            async function({args: {requestId, sender}}) {
                     console.log("Received request id:", requestId, "from sender:", sender);
                     await hre.common.send(contract, "fulfillRandomWords", [requestId, sender], txOptions);
                 });
+
+                try {
+                    while(true) {
+                        await new Promise((resolve) => setTimeout(resolve, 1000));
+                    }
+                } finally {
+                    stopper();
+                }
             }, {
                 onError: (e) => {
                     console.error("There was an error while running this method");
                     console.error(e);
                 },
-                onSuccess: (data) => {
-                    console.log(`Requests: ${data.length || 'no'} elements`);
-                    data.forEach(({args: {requestId}}) => {
-                        console.log("Request id:", requestId);
-                    })
+                onSuccess: () => {
+                    console.log(`Worker finished successfully`);
                 }
             }, [], {}
         ).asTask(
