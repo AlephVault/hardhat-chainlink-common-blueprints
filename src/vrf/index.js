@@ -106,6 +106,26 @@ extendEnvironment((hre) => {
     );
 
     new hre.methodPrompts.ContractMethodPrompt(
+        "custom", async (contract) => {
+            return await hre.common.getLogs(contract, "SubscriptionCreated");
+        }, {
+            onError: (e) => {
+                console.error("There was an error while running this method");
+                console.error(e);
+            },
+            onSuccess: (data) => {
+                console.log(`Subscriptions: ${data.length || 'no'} elements`);
+                data.forEach(({args: {subId}}) => {
+                    console.log("Subscription id:", subId);
+                })
+            }
+        }
+    ).asTask(
+        "chainlink:vrf:list-subscriptions",
+        "Lists the subscriptions from a VRF coordinator V2 / V2.5 contract"
+    )
+
+    new hre.methodPrompts.ContractMethodPrompt(
         "call", "getSubscription", {
             onError: (e) => {
                 console.error("There was an error while running this method");
@@ -290,10 +310,6 @@ extendEnvironment((hre) => {
     }
 
     // TODO:
-    // Task to list SubscriptionCreated events (with indexed: subId)
-    // >>> For each, listing the prices with getSubscription(subId) returning:
-    //     (uint96 balance, uint96 nativeBalance, uint64 reqCount, address subOwner, address[] memory consumers)
-    // Task to invoke: function getSubscription(uint256 subId) public returns (... same as before ...)
     // Task to invoke: function fulfillRandomWords(uint256 _requestId, address _consumer) external
     // [ONLY IN A MOCK]
     // Task to launch a worker which attends these events:
@@ -312,14 +328,6 @@ extendEnvironment((hre) => {
 });
 
 /**
-scope_
-    .task("list-subscriptions")
-    .setDescription("Lists the subscriptions associated to a Chainlink VRF (2 or 2.5) contract")
-    .addPositionalParam("contract", "The address of the contract")
-    .setAction(({ contract }, hre) => {
-
-    });
-
 scope_
     .task("fulfill-random-words")
     .setDescription("In a MOCK of a Chainlink VRF (2 or 2.5) contract, fulfills a random words request")
