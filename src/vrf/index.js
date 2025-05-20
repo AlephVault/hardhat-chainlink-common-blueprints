@@ -238,6 +238,30 @@ extendEnvironment((hre) => {
         );
 
         new hre.methodPrompts.ContractMethodPrompt(
+            "custom", async (contract, _, txOptions) => {
+                await hre.common.watchLogs(contract, "RandomWordsRequested", [],
+                                           async function({args: {requestId, sender}}) {
+                    console.log("Received request id:", requestId, "from sender:", sender);
+                    await hre.common.send(contract, "fulfillRandomWords", [requestId, sender], txOptions);
+                });
+            }, {
+                onError: (e) => {
+                    console.error("There was an error while running this method");
+                    console.error(e);
+                },
+                onSuccess: (data) => {
+                    console.log(`Requests: ${data.length || 'no'} elements`);
+                    data.forEach(({args: {requestId}}) => {
+                        console.log("Request id:", requestId);
+                    })
+                }
+            }, [], {}
+        ).asTask(
+            "chainlink:vrf:fulfill-random-words-worker",
+            "Runs a worker that fulfills a random words request in a VRF coordinator V2 / V2.5 MOCK contract"
+        );
+
+        new hre.methodPrompts.ContractMethodPrompt(
             "send", "fulfillRandomWords", {
                 onError: (e) => {
                     console.error("There was an error while running this method");
