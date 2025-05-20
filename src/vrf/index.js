@@ -48,6 +48,7 @@ extendEnvironment((hre) => {
             }
         ]
     );
+
     new hre.methodPrompts.ContractMethodPrompt(
         "send", "addConsumer", {
             onError: (e) => {
@@ -66,15 +67,16 @@ extendEnvironment((hre) => {
             },
             {
                 name: "consumerAddress",
-                description: "The address of the consumer contract (intended for VRFConsumerV2Plus contracts)",
-                message: "Choose the address of the consumer contract (a VRFConsumerV2Plus one, here)",
-                argumentType: "uint256"
+                description: "The address of the consumer contract (intended for VRFConsumer V2 / V2Plus contracts)",
+                message: "Choose the address of the consumer contract (a VRFConsumer V2 / V2Plus one, here)",
+                argumentType: "address"
             }
         ], {}
     ).asTask(
         "chainlink:vrf:add-subscription-consumer",
-        "Invokes addConsumer on a VRF coordinator 2.5 contract for a given consumer"
+        "Invokes addConsumer on a VRF coordinator V2 / V2.5 contract for a given consumer"
     );
+
     new hre.methodPrompts.ContractMethodPrompt(
         "send", "removeConsumer", {
             onError: (e) => {
@@ -93,15 +95,38 @@ extendEnvironment((hre) => {
             },
             {
                 name: "consumerAddress",
-                description: "The address of the consumer contract (intended for VRFConsumerV2Plus contracts)",
-                message: "Choose the address of the consumer contract (a VRFConsumerV2Plus one, here)",
-                argumentType: "uint256"
+                description: "The address of the consumer contract (intended for VRFConsumer V2 / V2Plus contracts)",
+                message: "Choose the address of the consumer contract (a VRFConsumer V2 / V2Plus one, here)",
+                argumentType: "address"
             }
         ], {}
     ).asTask(
         "chainlink:vrf:remove-subscription-consumer",
-        "Invokes removeConsumer on a VRF coordinator 2.5 contract for a given VRFConsumerV2Plus contract"
+        "Invokes removeConsumer on a VRF coordinator V2 / V2.5 contract for a given VRFConsumer V2 / V2Plus contract"
     );
+
+    new hre.methodPrompts.ContractMethodPrompt(
+        "call", "getSubscription", {
+            onError: (e) => {
+                console.error("There was an error while running this method");
+                console.error(e);
+            },
+            onSuccess: (data) => {
+                // Data is: (uint96 balance, uint96 nativeBalance, uint64 reqCount, address subOwner, address[] memory consumers)
+                console.log("Subscription data:", data);
+            }
+        }, [
+            {
+                name: "subscriptionId",
+                description: "The id of the subscription to retrieve",
+                message: "Choose the id of the subscription to retrieve",
+                argumentType: "uint256"
+            },
+        ]
+    ).asTask(
+        "chainlink:vrf:get-subscription",
+        "Invokes getSubscription on a VRF coordinator V2 / V2.5 contract"
+    )
 
     if (["hardhat", "localhost"].includes(hre.network.name)) {
         hre.blueprints.registerBlueprint(
@@ -130,6 +155,7 @@ extendEnvironment((hre) => {
                 }
             ]
         );
+
         hre.blueprints.registerBlueprint(
             "chainlink:vrf:coordinator-mock-contract", "VRFCoordinatorV2PlusMock", "A Chainlink VRFCoordinatorV2_5Mock contract to be used in the local network",
             path.resolve(baseDir, "solidity", "VRFCoordinatorV2_5Mock.sol.template"), "solidity", [
@@ -157,6 +183,7 @@ extendEnvironment((hre) => {
                 }
             ]
         );
+
         hre.blueprints.registerBlueprint(
             "chainlink:vrf:coordinator-mock-deployment", "VRFCoordinatorV2_5Mock", "A Chainlink VRFCoordinatoeV2_5Mock deployment module to be used in the local network",
             path.resolve(baseDir, "ignition-modules", "VRFCoordinatorV2_5Mock.js.template"),
@@ -208,6 +235,7 @@ extendEnvironment((hre) => {
                 }
             ]
         );
+
         new hre.methodPrompts.ContractMethodPrompt(
             "send", "fundSubscription", {
                 onError: (e) => {
@@ -235,6 +263,7 @@ extendEnvironment((hre) => {
             "chainlink:vrf:fund-subscription",
             "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the LINK balance"
         );
+
         new hre.methodPrompts.ContractMethodPrompt(
             "send", "fundSubscriptionWithNative", {
                 onError: (e) => {
@@ -260,14 +289,6 @@ extendEnvironment((hre) => {
         );
     }
 
-    //         args: deploymentId, deployedContractId
-    //
-    //         const deploymentContractId = await new this._hre.enquirerPlus.Enquirer.GivenOrDeployedContractSelect({
-    //             deploymentId, message: "Select one of your deployed contracts:", given: deployedContractId
-    //         }).run();
-    //
-    //         const contract = await this._hre.ignition.getDeployedContract(deploymentContractId, deploymentId);
-
     // TODO:
     // Task to list SubscriptionCreated events (with indexed: subId)
     // >>> For each, listing the prices with getSubscription(subId) returning:
@@ -289,3 +310,28 @@ extendEnvironment((hre) => {
     //     );
     // and based on it invokes the fulfillRandomWords(requestId, sender) method.
 });
+
+/**
+scope_
+    .task("list-subscriptions")
+    .setDescription("Lists the subscriptions associated to a Chainlink VRF (2 or 2.5) contract")
+    .addPositionalParam("contract", "The address of the contract")
+    .setAction(({ contract }, hre) => {
+
+    });
+
+scope_
+    .task("fulfill-random-words")
+    .setDescription("In a MOCK of a Chainlink VRF (2 or 2.5) contract, fulfills a random words request")
+    .addPositionalParam("contract", "The address of the contract")
+    .setAction(async ({ contract }, hre) => {
+        const local = ["hardhat", "localhost"].includes(hre.network.name);
+        if (!local) {
+            console.error("This feature is only intended for hardhat/localhost networks");
+            return;
+        }
+
+        // Invoke the fulfill method on the Chainlink mock.
+        await hre.common.send(contract, "", [], {});
+    });
+*/
