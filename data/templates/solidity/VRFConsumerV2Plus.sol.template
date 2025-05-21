@@ -16,18 +16,16 @@ contract #SCRIPT_NAME# is VRFConsumerBaseV2Plus {
     // them to actual variables and arguments if you need
     // to make them per-network, but ensure you respect
     // the identifier names in the process.
-    uint32 constant callbackGasLimit = #CALLBACK_GAS_LIMIT#; // Default: 4000
+    uint32 constant callbackGasLimit = #CALLBACK_GAS_LIMIT#; // Default: 3000000
     uint16 constant requestConfirmations = #REQUEST_CONFIRMATIONS#; // Default: 3
     uint32 constant numWords = #NUM_WORDS#; // Default: 1
     bool constant nativePayments = #USE_NATIVE_PAYMENTS#; // Default: false
 
     // These are per-environment values: The subscription
-    // id, the address of the coordinator of this random
-    // number generator, and the hash of the gas lane to
-    // use (it has to do with gas prices and priorities,
-    // not with the gas quantity).
+    // id and the hash of the gas lane to use (it has to do
+    // with gas prices and priorities, not with the gas
+    // quantity).
     uint256 private subscriptionId;
-    address private vrfCoordinator;
     bytes32 private keyHash;
 
     /**
@@ -82,7 +80,6 @@ contract #SCRIPT_NAME# is VRFConsumerBaseV2Plus {
         VRFConsumerBaseV2Plus(_vrfCoordinator)
     {
         subscriptionId = _subscriptionId;
-        vrfCoordinator = _vrfCoordinator;
         keyHash = _keyHash;
     }
 
