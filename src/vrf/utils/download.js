@@ -130,6 +130,24 @@ const vrfSettings = [
         lanes: [
             {name: "3000 gwei", hash: "0x121a143066e0f2f08b620784af77cccb35c6242460b4a8ee251b4b416abaebd4"}
         ]
+    },
+    // OP Mainnet and Sepolia (Testnet).
+    {
+        chainId: 10,
+        linkAddress: "0x350a791Bfc2C21F9Ed5d10980Dad2e2638ffa7f6",
+        coordinatorAddress: "0x5FE58960F730153eb5A84a47C51BD4E58302E1c8",
+        lanes: [
+            {name: "2 gwei", hash: "0xa16a2316f92fa0abfd0029eea74e947d0613728e934d9794cd78bc02e2f69de4"},
+            {name: "30 gwei", hash: "0x8e7a847ba0757d1c302a3f0fde7b868ef8cf4acc32e48505f1a1d53693a10a19"}
+        ]
+    },
+    {
+        chainId: 11155420,
+        linkAddress: "0xE4aB69C077896252FAFBD49EFD26B5D171A32410",
+        coordinatorAddress: "0x02667f44a6a44E4BDddCF80e724512Ad3426B17d",
+        lanes: [
+            {name: "30 gwei", hash: "0xc3d5bc4d5600fa71f7a50b9ad841f14f24f9ca4236fd00bdb5fda56b052b28a4"}
+        ]
     }
 ]
 
