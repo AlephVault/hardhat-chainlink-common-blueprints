@@ -111,6 +111,25 @@ const vrfSettings = [
         lanes: [
             {name: "30 gwei", hash: "0x9e1344a1247c8a1785d0a4681a27152bffdb43666ae5bf7d14d24a5efd44bf71"}
         ]
+    },
+    // Fantom Opera (Mainnet) and Testnet.
+    {
+        chainId: 250,
+        linkAddress: "0x6F43FF82CCA38001B6699a8AC47A2d0E66939407",
+        coordinatorAddress: "0xd5D517aBE5cF79B7e95eC98dB0f0277788aFF634",
+        lanes: [
+            {name: "4000 gwei", hash: "0xb4797e686f9a1548b9a2e8c68988d74788e0c4af5899020fb0c47784af76ddfa"},
+            {name: "10000 gwei", hash: "0x5881eea62f9876043df723cf89f0c2bb6f950da25e9dfe66995c24f919c8f8ab"},
+            {name: "20000 gwei", hash: "0x64ae04e5dba58bc08ba2d53eb33fe95bf71f5002789692fe78fb3778f16121c9"}
+        ]
+    },
+    {
+        chainId: 40002,
+        linkAddress: "0xfaFedb041c0DD4fA2Dc0d87a6B0979Ee6FA7af5F",
+        coordinatorAddress: "0xbd13f08b8352A3635218ab9418E340c60d6Eb418",
+        lanes: [
+            {name: "3000 gwei", hash: "0x121a143066e0f2f08b620784af77cccb35c6242460b4a8ee251b4b416abaebd4"}
+        ]
     }
 ]
 
