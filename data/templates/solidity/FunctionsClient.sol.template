@@ -20,14 +20,21 @@ contract #SCRIPT_NAME# is FunctionsClient {
 
     // These are per-environment values: The subscription
     // id, the id of the DON to use, the source code and
-    // the reference to the stored secrets.
+    // the reference to the stored secrets (and, if this
+    // value is empty, the slot-id / version).
     //
     // Notice how, a priori, the source code is not constant
     // but stored in a variable. This is intentional since
-    // the storage of those variables is related
+    // the source code might be heavy and surpass the size
+    // allowed, as maximum, to the contracts (24kb).
+    //
+    // Notes: Feel free to edit this section and choose only
+    // one way of providing secrets.
     uint64 private immutable subscriptionId;
     bytes32 private immutable donId;
     bytes private immutable secrets;
+    uint8 private immutable donHostedSecretsSlotID;
+    uint64 private immutable donHostedSecretsVersion;
     string private immutable sourceCode;
 
     /**
@@ -78,13 +85,20 @@ contract #SCRIPT_NAME# is FunctionsClient {
     mapping(uint256 => Request) private requests;
 
     // Add more parameters to this constructor when needed.
+    // Again: Feel free to edit this section and choose only
+    // one way of providing secrets.
     constructor(
         uint64 _subscriptionId, address _router, bytes32 _donId,
-        bytes memory _sourceCode, bytes32 memory _secrets
+        bytes memory _sourceCode, bytes32 memory _secrets,
+        uint8 _donHostedSecretsSlotID, uint64 _donHostedSecretsVersion
     ) FunctionsClient(_router) {
         subscriptionId = _subscriptionId;
         donId = _donId;
+        // Again: Feel free to edit this section and choose only
+        // one way of providing secrets.
         secrets = _secrets;
+        donHostedSecretsSlotID = _donHostedSecretsSlotID;
+        donHostedSecretsVersion = _donHostedSecretsVersion;
         sourceCode = _sourceCode;
     }
 
@@ -105,7 +119,13 @@ contract #SCRIPT_NAME# is FunctionsClient {
         // Preparing the request and arguments.
         FunctionsRequest.Request memory req;
         req.initializeRequestForInlineJavaScript(sourceCode);
-        req.addSecretsReference(secrets);
+        // Again: Feel free to edit this section and choose only
+        // one way of providing secrets.
+        if (secrets.length > 0) {
+            req.addSecretsReference(secrets);
+        } else {
+            req.addDONHostedSecrets(donHostedSecretsSlotID, donHostedSecretsVersion);
+        }
         req.setArgs(_args);
 
         uint256 requestId = uint256(_sendRequest(
