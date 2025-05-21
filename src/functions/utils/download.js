@@ -107,8 +107,12 @@ const functionSettings = [
 
 module.exports = {
     // v1.3.0 routers.
-    getRouters: () => [],
+    getRouters: () => functionSettings.map((e) => ({
+        chainId: e.chainId, address: e.routerAddress, name: "(The only function router)"
+    })),
 
     // DON IDs.
-    getDONIDs: () => []
+    getDONIDs: () => functionSettings.map((e) => ({
+        chainId: e.chainId, address: e.donId, name: "(The only DON ID)"
+    }))
 }
