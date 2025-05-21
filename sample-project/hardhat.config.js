@@ -1,4 +1,5 @@
 require("@nomicfoundation/hardhat-toolbox");
+require("@chainlink/functions-toolkit");
 require("hardhat-enquirer-plus");
 require("hardhat-common-tools");
 require("hardhat-blueprints");
