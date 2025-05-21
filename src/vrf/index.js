@@ -240,9 +240,12 @@ extendEnvironment((hre) => {
         new hre.methodPrompts.ContractMethodPrompt(
             "custom", async (contract, _, txOptions) => {
                 const stopper = await hre.common.watchLogs(contract, "RandomWordsRequested", [],
-                                           async function({args: {requestId, sender}}) {
+                                           async function({args: {requestId, sender, callbackGasLimit}}) {
                     console.log("Received request id:", requestId, "from sender:", sender);
-                    await hre.common.send(contract, "fulfillRandomWords", [requestId, sender], txOptions);
+                    await hre.common.send(
+                        contract, "fulfillRandomWords", [requestId, sender],
+                        {...txOptions, gas: callbackGasLimit}
+                    );
                 });
 
                 try {
