@@ -76,6 +76,32 @@ const functionSettings = [
         linkAddress: "0x32E08557B14FaD8908025619797221281D439071",
         donId: "0x66756e2d63656c6f2d616c66616a6f7265732d31000000000000000000000000",
         routerAddress: "0x53BA5D8E5aab0cf9589aCE139666Be2b9Fd268e2"
+    },
+    // OP Mainnet and Sepolia (Testnet).
+    {
+        chainId: 10,
+        linkAddress: "0x350a791Bfc2C21F9Ed5d10980Dad2e2638ffa7f6",
+        donId: "0x66756e2d6f7074696d69736d2d6d61696e6e65742d310a000000000000000000",
+        routerAddress: "0xaA8AaA682C9eF150C0C8E96a8D60945BCB21faad"
+    },
+    {
+        chainId: 11155420,
+        linkAddress: "0xE4aB69C077896252FAFBD49EFD26B5D171A32410",
+        donId: "0x66756e2d6f7074696d69736d2d7365706f6c69612d3100000000000000000000",
+        routerAddress: "0xC17094E3A1348E5C7544D4fF8A36c28f2C6AAE28"
+    },
+    // Soneium Mainnet and Minato (Testnet).
+    {
+        chainId: 1868,
+        linkAddress: "0x32D8F819C8080ae44375F8d383Ffd39FC642f3Ec",
+        donId: "0x66756e2d736f6e6569756d2d6d61696e6e65742d310000000000000000000000",
+        routerAddress: "0x20fef1B12FA78fAc8CFB8a7ac1bf032Bd8DcAdDa"
+    },
+    {
+        chainId: 1946,
+        linkAddress: "0x7ea13478Ea3961A0e8b538cb05a9DF0477c79Cd2",
+        donId: "0x66756e2d736f6e6569756d2d7365706f6c69612d310000000000000000000000",
+        routerAddress: "0x3704dc1eefCDCE04C58813836AEcfdBC8e7cB3D8"
     }
 ]
 
