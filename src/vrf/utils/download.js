@@ -1,4 +1,5 @@
 const vrfSettings = [
+    // Ethereum Mainnet and Sepolia (Testnet).
     {
         chainId: 1,
         linkAddress: "0x514910771AF9Ca656af840dff83E8264EcF986CA",
@@ -17,6 +18,7 @@ const vrfSettings = [
             {name: "500 gwei", hash: "0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae"}
         ]
     },
+    // Binance Mainnet and Testnet.
     {
         chainId: 56,
         linkAddress: "0x404460C6A5EdE2D891e8297795264fDe62ADBB75",
@@ -35,6 +37,7 @@ const vrfSettings = [
             {name: "50 gwei", hash: "0x8596b430971ac45bdf6088665b9ad8e8630c9d5049ab54b14dff711bee7c0e26"}
         ]
     },
+    // Polygon Mainnet and Amoy (Testnet).
     {
         chainId: 137,
         linkAddress: "0xb0897686c545045aFc77CF20eC7A532E3120E0F1",
@@ -53,6 +56,7 @@ const vrfSettings = [
             {name: "500 gwei", hash: "0x816bedba8a50b294e5cbd47842baf240c2385f2eaf719edbd4f250a137a8c899"}
         ]
     },
+    // Avalanche Mainnet and Fuji (Testnet).
     {
         chainId: 43114,
         linkAddress: "0x5947BB275c521040051D82396192181b413227A3",
@@ -71,6 +75,7 @@ const vrfSettings = [
             {name: "300 gwei", hash: "0xc799bd1e3bd4d1a41cd4968997a4e03dfd2a3c7c04b695881138580163f42887"}
         ]
     },
+    // Arbitrum One (Mainnet) and Sepolia (Testnet).
     {
         chainId: 42161,
         linkAddress: "0xf97f4df75117a78c1A5a0DBb814Af92458539FB4",
@@ -89,6 +94,7 @@ const vrfSettings = [
             {name: "50 gwei", hash: "0x1770bdc7eec7771f7ba4ffd640f34260d7f095b79c92d34a5b2551d6f6cfd2be"}
         ]
     },
+    // Base Mainnet and Sepolia (Testnet).
     {
         chainId: 8453,
         linkAddress: "0x88Fb150BDc53A65fe94Dea0c9BA0a6dAf8C6e196",
