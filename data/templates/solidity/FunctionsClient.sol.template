@@ -1,0 +1,145 @@
+// SPDX-License-Identifier: MIT
+pragma solidity #SOLIDITY_VERSION#;
+
+import {FunctionsClient} from "@chainlink/contracts/src/v0.8/functions/dev/#FUNCTIONS_VERSION#/FunctionsClient.sol";
+import {FunctionsRequest} from "@chainlink/contracts/src/v0.8/functions/dev/v1_0_0/libraries/FunctionsRequest.sol";
+
+/**
+ * This contract is a functions consumer. This is a default implementation
+ * that can be changed later at user's please (as long as the call to
+ * `#FULFILL_REQUEST#` is done, it will work and the user can tune it
+ * to have many call implementations).
+ */
+contract #SCRIPT_NAME# is FunctionsClient {
+    // Constants related to the code & consumption model
+    // of our Functions Consumer contract. You are free to
+    // move them to actual variables and arguments if you
+    // need to make them per-network, but ensure you respect
+    // the identifier names in the process.
+    uint32 constant callbackGasLimit = #CALLBACK_GAS_LIMIT#; // Default: 3000000
+
+    // These are per-environment values: The subscription
+    // id, the id of the DON to use, the source code and
+    // the reference to the stored secrets.
+    //
+    // Notice how, a priori, the source code is not constant
+    // but stored in a variable. This is intentional since
+    // the storage of those variables is related
+    uint64 private immutable subscriptionId;
+    bytes32 private immutable donId;
+    bytes private immutable secrets;
+    string private immutable sourceCode;
+
+    /**
+     * The status of the request.
+     */
+    enum RequestStatus { Invalid, Pending, Completed }
+
+    /**
+     * This event is dapp-specific to tell that the request has
+     * started. Users should listen for this event and do any
+     * processing, typically understanding that the dapp will
+     * be properly updated.
+     */
+    // Modify this event as much as you want, but always keeping
+    // in mind that you can have up to 3 indexed arguments and
+    // typically you might like requestId to be one of them.
+    event RequestStarted(uint256 indexed requestId);
+
+    /**
+     * This event is dapp-specific to tell that the request has
+     * completed. Users should listen for this event and do any
+     * processing, typically understanding that the dapp will
+     * be properly updated.
+     */
+    // Modify this event as much as you want, but always keeping
+    // in mind that you can have up to 3 indexed arguments and
+    // typically you might like requestId to be one of them.
+    event RequestCompleted(uint256 indexed requestId);
+
+    /**
+     * The request, being tracked for completion. This request
+     * will hold dapp-logic related to the launched request (an
+     * example: who launched the request and some extra context
+     * to be used in the call-fulfillment handling).
+     */
+    struct Request {
+        /**
+         * The status of the request. Check against Invalid to detect whether
+         * a given request ID was never issued.
+         */
+        RequestStatus status;
+        // Add more variables you deem useful here.
+    }
+
+    /**
+     * The in-progress and fulfilled requests.
+     */
+    mapping(uint256 => Request) private requests;
+
+    // Add more parameters to this constructor when needed.
+    constructor(
+        uint64 _subscriptionId, address _router, bytes32 _donId,
+        bytes memory _sourceCode, bytes32 memory _secrets
+    ) FunctionsClient(_router) {
+        subscriptionId = _subscriptionId;
+        donId = _donId;
+        secrets = _secrets;
+        sourceCode = _sourceCode;
+    }
+
+    /**
+     * This internal function is the responsible of requiring
+     * the function execution to the VRF service.
+     */
+    // It's name can be changed, and also the required arguments
+    // or even the output arguments (return values), visibility
+    // and modifiers. The important part is that this function
+    // is the entry point to request random numbers and that it
+    // must be modified enough so it is not freely invokable by
+    // external users or contracts, but by certain rules instead
+    // (e.g. as part of a game-related request).
+    function triggerDAPPRequest(string[] memory _args) internal {
+        // Add any prior logic here.
+
+        // Preparing the request and arguments.
+        FunctionsRequest.Request memory req;
+        req.initializeRequestForInlineJavaScript(sourceCode);
+        req.addSecretsReference(secrets);
+        req.setArgs(_args);
+
+        uint256 requestId = uint256(_sendRequest(
+            req.encodeCBOR(), subscriptionId, callbackGasLimit, donId
+        ));
+
+        // Storing the request is mandatory. It will not raise any error
+        // if not done, but the request will be lost and it will become
+        // wasted money and, of course, it is a bug.
+        // Custom data is allowed and typically recommended depending on
+        // the dapp's logic.
+        requests[requestId] = Request({status: RequestStatus.Pending});
+
+        // Emit the custom event, perhaps adding more data. This is
+        // optional but a typically useful use case.
+        emit RequestStarted(requestId);
+    }
+
+    /**
+     * Attends any incoming response for the issued requests.
+     */
+    function #FULFILL_REQUEST#(bytes32 requestId, bytes memory response, bytes memory err) internal override {
+        // Fulfill the request. It is guaranteed that the record
+        // will exist, as long as it is properly stored on launch.
+        Request storage request = requests[uint256(requestId)];
+        request.status = RequestStatus.Completed;
+
+        // Fulfilling will involve setting more data in the request.
+        // Example if the source code expects:
+        //     (uint256 foo, string memory bar) = abi.decode(response, (uint256, string));
+        //     // Then do something with `foo` and `bar`.
+
+        // Emit the custom event, perhaps adding more data. This is
+        // optional but a typically useful use case.
+        emit RequestCompleted(requestId);
+    }
+}
