@@ -385,38 +385,4 @@ extendEnvironment((hre) => {
             "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the native balance"
         );
     }
-
-    // TODO:
-    // Task to invoke: function fulfillRandomWords(uint256 _requestId, address _consumer) external
-    // [ONLY IN A MOCK]
-    // Task to launch a worker which attends these events:
-    //     event RandomWordsRequested(
-    //         bytes32 indexed keyHash,
-    //         uint256 requestId,
-    //         uint256 preSeed,
-    //         uint256 indexed subId,
-    //         uint16 minimumRequestConfirmations,
-    //         uint32 callbackGasLimit,
-    //         uint32 numWords,
-    //         bytes extraArgs,
-    //         address indexed sender
-    //     );
-    // and based on it invokes the fulfillRandomWords(requestId, sender) method.
 });
-
-/**
-scope_
-    .task("fulfill-random-words")
-    .setDescription("In a MOCK of a Chainlink VRF (2 or 2.5) contract, fulfills a random words request")
-    .addPositionalParam("contract", "The address of the contract")
-    .setAction(async ({ contract }, hre) => {
-        const local = ["hardhat", "localhost"].includes(hre.network.name);
-        if (!local) {
-            console.error("This feature is only intended for hardhat/localhost networks");
-            return;
-        }
-
-        // Invoke the fulfill method on the Chainlink mock.
-        await hre.common.send(contract, "", [], {});
-    });
-*/
