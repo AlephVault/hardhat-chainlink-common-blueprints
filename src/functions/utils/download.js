@@ -60,7 +60,7 @@ const functionSettings = [
     },
     {
         chainId: 84532,
-        linkAddress: "0xe4ab69c077896252fafbd49efd26b5d171a32410",
+        linkAddress: "0xE4aB69C077896252FAFBD49EFD26B5D171A32410",
         donId: "0x66756e2d626173652d7365706f6c69612d310000000000000000000000000000",
         routerAddress: "0xf9B8fc078197181C841c296C876945aaa425B278"
     }
