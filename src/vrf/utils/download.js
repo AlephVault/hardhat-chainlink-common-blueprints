@@ -148,6 +148,43 @@ const vrfSettings = [
         lanes: [
             {name: "30 gwei", hash: "0xc3d5bc4d5600fa71f7a50b9ad841f14f24f9ca4236fd00bdb5fda56b052b28a4"}
         ]
+    },
+    // Ronin Mainnet and Saigon (Testnet).
+    {
+        chainId: 2020,
+        linkAddress: "0x3902228D6A3d2Dc44731fD9d45FeE6a61c722D0b",
+        coordinatorAddress: "0xa18FD3db9B869AD2A8c55267e0D54dbf6ECEbEda",
+        lanes: [
+            {name: "50 gwei", hash: "0x1aefc70f3533a251306d6b85a6b336ba0ae2e384226274b236f42c3d5366dbbd"},
+            {name: "200 gwei", hash: "0x01753ec79fbf37f6332977d62f25c6d701b11bac255d7e79674fd2886622b0cc"},
+            {name: "1000 gwei", hash: "0xdb64d2a17ee501f6c6a8c090e058dfa39ea79d5fd121185bb903f5a69b8038a3"}
+        ]
+    },
+    {
+        chainId: 2021,
+        linkAddress: "0x5bB50A6888ee6a67E22afFDFD9513be7740F1c15",
+        coordinatorAddress: "0xc052324E6A27D0E4b2CbF0FdFFBCb3796ea8f8B8",
+        lanes: [
+            {name: "200 gwei", hash: "0x0a79a60cc054d8da06a5050a1d07f0fec08088ca64192cf67477f8cc3e549f71"}
+        ]
+    },
+    // Soneium Mainnet and Minato (Testnet).
+    {
+        chainId: 1868,
+        linkAddress: "0x32D8F819C8080ae44375F8d383Ffd39FC642f3Ec",
+        coordinatorAddress: "0xb89BB0aB64b219Ba7702f862020d879786a2BC49",
+        lanes: [
+            {name: "2 gwei", hash: "0x508b86c17b9abbdef2b903bd4f1b03ae321d7c1431b9ccac97d5927b4619e050"},
+            {name: "30 gwei", hash: "0x7611210a5ac0abd39b581bd4ce1108aa0b9e63994daa32cc7302d98ed47747c1"},
+        ]
+    },
+    {
+        chainId: 1946,
+        linkAddress: "0x7ea13478Ea3961A0e8b538cb05a9DF0477c79Cd2",
+        coordinatorAddress: "0x3Fa01AB73beB4EA09e78FC0849FCe31d0b035b47",
+        lanes: [
+            {name: "30 gwei", hash: "0x0c970a50393bea0011d5cec18c15c80c6deb37888b9ff579f476b3e52f6d3922"}
+        ]
     }
 ]
 
