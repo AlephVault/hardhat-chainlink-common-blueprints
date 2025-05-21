@@ -1,7 +1,7 @@
 const path = require("path");
-const {extendEnvironment} = require("hardhat/config");
-const {getVRFCoordinators, getVRFLaneHashes} = require("./utils/download");
-const {getProjectFiles} = require("../common/utils/files");
+const { extendEnvironment } = require("hardhat/config");
+const { getVRFCoordinators, getVRFLaneHashes } = require("./utils/download");
+const { getProjectFiles } = require("../common/utils/files");
 
 const baseDir = path.resolve(
     __dirname, "..", "..", "data", "templates"
