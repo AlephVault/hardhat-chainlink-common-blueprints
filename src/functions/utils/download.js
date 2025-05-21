@@ -63,6 +63,19 @@ const functionSettings = [
         linkAddress: "0xE4aB69C077896252FAFBD49EFD26B5D171A32410",
         donId: "0x66756e2d626173652d7365706f6c69612d310000000000000000000000000000",
         routerAddress: "0xf9B8fc078197181C841c296C876945aaa425B278"
+    },
+    // Celo Mainnet and Alfajores (Testnet).
+    {
+        chainId: 42220,
+        linkAddress: "0xd07294e6E917e07dfDcee882dd1e2565085C2ae0",
+        donId: "0x66756e2d63656c6f2d6d61696e6e65742d310000000000000000000000000000",
+        routerAddress: "0xd74646C75163f9dA0F3666C3BE8A9C42F4b3b261"
+    },
+    {
+        chainId: 44787,
+        linkAddress: "0x32E08557B14FaD8908025619797221281D439071",
+        donId: "0x66756e2d63656c6f2d616c66616a6f7265732d31000000000000000000000000",
+        routerAddress: "0x53BA5D8E5aab0cf9589aCE139666Be2b9Fd268e2"
     }
 ]
 
