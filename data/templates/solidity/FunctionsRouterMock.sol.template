@@ -1,0 +1,185 @@
+// SPDX-License-Identifier: MIT
+pragma solidity #SOLIDITY_VERSION#;
+
+import "@chainlink/contracts/src/v0.8/functions/v1_0_0/interfaces/IFunctionsRouter.sol";
+import "@chainlink/contracts/src/v0.8/functions/v1_3_0/FunctionsClient.sol";
+
+/**
+ * This mock attends local requests only.
+ */
+contract #SCRIPT_NAME# is IFunctionsRouter {
+    uint256 private counter;
+
+    mapping(uint256 => address) activeRequests;
+
+    /**
+     * No true use of subscriptions management ACL exists here,
+     * since this is intended for local development only. So this
+     * function is a NOOP.
+     */
+    function getAllowListId() external view returns (bytes32) {
+        return bytes32(0);
+    }
+
+    /**
+     * No true use of subscriptions management ACL exists here,
+     * since this is intended for local development only. So this
+     * function is a NOOP.
+     */
+    function setAllowListId(bytes32 allowListId) external {}
+
+    /**
+     * No actual network operation occurs since this is intended
+     * for local development only. So this function is a NOOP.
+     */
+    function getAdminFee() external view returns (uint72 adminFee) {
+        return uint72(0);
+    }
+
+    event RequestSent(
+        uint256 requestId, uint64 subscriptionId, bytes data, uint16 version, uint32 callbackGasLimit, bytes32 donId
+    );
+
+    /**
+     * Sends a request using the provided subscription id, the
+     * CBOR-encoded request (including the arguments and the
+     * source code), the version, gas limit and DON id to use.
+     *
+     * This only sends an event to be handled locally.
+     */
+    function sendRequest(
+        uint64 subscriptionId,
+        bytes calldata data,
+        uint16 dataVersion,
+        uint32 callbackGasLimit,
+        bytes32 donId
+    ) public returns (bytes32) {
+        counter += 1;
+        emit RequestSent(
+            counter, subscriptionId,
+            data, dataVersion, callbackGasLimit, donId
+        );
+        activeRequests[counter] = msg.sender;
+        return bytes32(counter);
+    }
+
+    /**
+     * Since this is a local mock only, this function does the same
+     * as sendRequest(...), so it calls it.
+     */
+    function sendRequestToProposed(
+        uint64 subscriptionId,
+        bytes calldata data,
+        uint16 dataVersion,
+        uint32 callbackGasLimit,
+        bytes32 donId
+    ) external returns (bytes32) {
+        return sendRequest(subscriptionId, data, dataVersion, callbackGasLimit, donId);
+    }
+
+    /**
+     * Fulfills a request by providing a bytes response or a bytes error,
+     * associated costs of function execution (LINK price per gas, and
+     * gas price of the external code's execution - these parameters are
+     * not used in the mock, so they will be 0 each), the transmitter
+     * (will not be used here, so it will be 0) and the commitment (which,
+     * from all the fields, only the request id and the client will be used).
+     * It returns a dummy result: successful or user callback error.
+     */
+    function fulfill(
+        bytes memory response,
+        bytes memory err,
+        uint96 juelsPerGas,
+        uint96 costWithoutFulfillment,
+        address transmitter,
+        FunctionsResponse.Commitment memory commitment
+    ) public returns (FunctionsResponse.FulfillResult, uint96) {
+        address client = activeRequests[uint256(commitment.requestId)];
+        require(client != address(0), "Invalid request");
+
+        try FunctionsClient(commitment.client).handleOracleFulfillment(commitment.requestId, response, err) {
+            delete activeRequests[uint256(commitment.requestId)];
+            return (FunctionsResponse.FulfillResult.FULFILLED, 0);
+        } catch {
+            return (FunctionsResponse.FulfillResult.USER_CALLBACK_ERROR, 0);
+        }
+    }
+
+    /**
+     * A helper to quick fulfill a request.
+     */
+    function quickFulfill(
+        uint256 requestId,
+        bytes memory response,
+        bytes memory err
+    ) external returns (FunctionsResponse.FulfillResult, uint96) {
+        // All the fields are dummy since they're not used by the engine
+        // itself since it's a mock.
+        return fulfill(response, err, 0, 0, address(0), FunctionsResponse.Commitment({
+            requestId: bytes32(requestId),
+            coordinator: address(0),
+            estimatedTotalCostJuels: 0,
+            client: activeRequests[requestId],
+            subscriptionId: 0,
+            callbackGasLimit: 0,
+            adminFee: 0,
+            donFee: 0,
+            gasOverheadBeforeCallback: 0,
+            gasOverheadAfterCallback: 0,
+            timeoutTimestamp: 0xffffffff
+        }));
+    }
+
+    /**
+     * No actual gas check operation occurs since this is intended
+     * for local development only. So this function is a NOOP.
+     */
+    function isValidCallbackGasLimit(uint64 subscriptionId, uint32 callbackGasLimit) external view {}
+
+    /**
+     * No actual DON route operation occurs since this is intended
+     * for local development only. So this function is a NOOP.
+     */
+    function getContractById(bytes32 id) external view returns (address) {
+        return address(0);
+    }
+
+    /**
+     * No actual DON route operation occurs since this is intended
+     * for local development only. So this function is a NOOP.
+     */
+    function getProposedContractById(bytes32 id) external view returns (address) {
+        return address(0);
+    }
+
+    /**
+     * No actual DON route operation occurs since this is intended
+     * for local development only. So this function is a NOOP.
+     */
+    function getProposedContractSet() external view returns (bytes32[] memory, address[] memory) {
+        return (new bytes32[](0), new address[](0));
+    }
+
+    /**
+     * No actual DON route operation occurs since this is intended
+     * for local development only. So this function is a NOOP.
+     */
+    function proposeContractsUpdate(bytes32[] memory proposalSetIds, address[] memory proposalSetAddresses) external {}
+
+    /**
+     * No actual DON route operation occurs since this is intended
+     * for local development only. So this function is a NOOP.
+     */
+    function updateContracts() external {}
+
+    /**
+     * No pausing feature exists in local mocks.
+     */
+    function pause() external {}
+
+    /**
+     * No pausing feature exists in local mocks.
+     */
+    function unpause() external {}
+
+}
