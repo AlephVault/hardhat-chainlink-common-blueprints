@@ -6,7 +6,7 @@ Data Feeds, although a simple feature, requires knowledge of some elements of th
 training will not be given in this documentation, but assumed.
 
 ## Setup related to Price Feeds
-This setup presumes the relevant plugins are added as described in the [general docs'](README.md) setup section.
+This setup assumes the relevant plugins are added as described in the [general docs'](README.md) setup section.
 
 Price Feeds are read-only contracts, at least from the viewpoint of interacting with them from other contracts.
 
