@@ -39,15 +39,12 @@ function feedIsProductTypePrice(e) {
  * @returns {Promise<void>} Nothing (async function).
  */
 async function addEntries(url, chainId, entries) {
-    console.log(`Retrieving ChainLink PriceFeed data from url: ${url}...`)
     let response = await fetch(url, fetchInit);
-    console.log(`>>> Status code: ${response.status}`)
     if (response.status !== 200) return;
     let result = await response.json();
     if (!(result instanceof Array)) {
-        console.log(">>> Skipping (not an array)");
+        return;
     }
-    console.log(`>>> # of elements: ${(typeof result.length === "number" ? result.length : "Not an array!")}`);
 
     result.sort((a, b) => {
         const au = a.name.toUpperCase();
