@@ -203,3 +203,55 @@ This will add the module to the pipeline and the correct one will be executed de
 network is added to the hardhat config file, the mock will be executed instead! ensure to repeat the steps to add
 an ignition module or create it manually by copying / pasting / renaming and choosing the appropriate address
 from the official Chainlink documentation).
+
+## Available Commands
+
+This said, there are some commands that are available for Feeds-related features:
+
+1. You can clean the cache of available feeds (this feature is only available for Feeds in this package).
+   This is needed if the list is outdated, but is a seldom used command:
+
+   ```shell
+   npx hardhat invoke chainlink:price-feed:invalidate-cache
+   ```
+   
+2. To return the latest round data from an ignition-deployed contract, execute this command:
+
+   ```shell
+   # Use --network amoy or whatever network you want to get
+   # the data from, and then choose a contract deployed on
+   # that network.
+   npx hardhat invoke chainlink:price-feed:latest-round-data
+   ```
+   
+3. To return data from a specific round from an ignition-deployed contract, execute this command:
+
+   ```shell
+   # Use --network amoy or whatever network you want to get
+   # the data from, and then choose a contract deployed on
+   # that network.
+   #
+   # Also, specify the round number you're interested in.
+   npx hardhat invoke chainlink:price-feed:get-round-data
+   ```
+   
+4. This command makes only sense in localhost / hardhat network, since it involves interacting
+   with a mock contract, so it's not available in other networks. Its intention is to set the
+   current value for a feed:
+
+   ```shell
+   # Don't use any --network xxx here.
+   #
+   # Choose a contract deployed on the localhost network.
+   #
+   # Also, tell the new value the feed must have.
+   npx hardhat invoke chainlink:price-feed:set-answer
+   ```
+   
+   With this, the feed mock will have a new value.
+
+## Conclusion
+
+With this in mind, you should be able to properly deploy and interact with feed contracts in
+your other contracts and / or test files as with other contracts in a seamless way (e.g. when
+interacting with feeds to apply conversion rates when selling products).
