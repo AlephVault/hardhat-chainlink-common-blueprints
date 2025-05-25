@@ -3,6 +3,10 @@ pragma solidity ^0.8.10;
 
 import "@chainlink/contracts/src/v0.8/vrf/dev/interfaces/IVRFCoordinatorV2Plus.sol";
 
+/**
+ * This is not an actual contract implementation but a stub, useful to refer
+ * remotely (externally) deployed contracts satisfying RemoteVRFCoordinatorV2PlusStub.
+ */
 contract RemoteVRFCoordinatorV2PlusStub is IVRFCoordinatorV2Plus {
     constructor(){}
 
