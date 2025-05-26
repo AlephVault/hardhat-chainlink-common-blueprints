@@ -18,7 +18,7 @@ While using local networks, we'll typically create mock contracts. Creating a mo
 following command:
 
 ```shell
-npx hardhat blueprint apply chainlink:feed:feed-mock-contract
+npx hardhat blueprint apply chainlink:feed:mock
 ```
 
 It will ask the name (let's assume MyContract) and solidity version to use, and ultimately generate a file like this:
@@ -150,19 +150,33 @@ will be used for local networks only.
 ### Main and Test networks
 
 Here, we'll leverage the power of existing data feeds (we don't want to use mocks here) in the appropriate
-network. Since there can be many networks set up in a project, this setup will be needed more than once:
+network. The first part is to have a Stub contract in your project. This stub contract is similar to a mock
+but the idea behind is that the stub will not be used at all: will serve as a reference point to have some
+sort of ABI available for hardhat ignition. So, choose one of your non-localhost networks (any of them and
+this step will work for _all the networks_, actually) and run the command:
+
+```shell
+npx hardhat blueprint apply chainlink:feed:stub --network your-network
+```
+
+This will generate a stub contract that you can use for _each_ of the subsequent repeated calls (i.e. the
+same stub contract for a mainnet, a testnet, another mainnet, another testnet, ...). If you feel this is
+too much, you can still skip this step and use the Mock contract in the next steps.
+
+Since there can be many networks set up in a project, this setup will be needed more than once:
 
 1. Ensure the network of interest is added to your hardhat project (you'll use a `--network your-network` argument).
 2. Extract the mnemonic and/or private key(s) you'll work with, typically into environment variables.
 3. Run the following command to create an ignition module to reference a per-network:
 
    ```shell
-   npx hardhat blueprint apply chainlink:feed:feed-external-deployment --network your-network
+   npx hardhat blueprint apply chainlink:feed:deployment --network your-network
    ```
 
-4. Give it a name (let's assume MaticUsd2) and, from the list of feeds supported in your network, choose the one you
-   want to reference. If this setup is run for multiple networks, ensure the name is not always MaticUsd2 but instead
-   MaticUsd3, MaticUsd4, ... every time a different name.
+4. Give it a name (let's assume MaticUsd2) and choose a contract (the contract must be a Feed Stub or, in the worst
+   case, Feed Mock you already created in prior step(s)). Then, from the list of feeds supported in your network,
+   choose the one you want to reference. If this setup is run for multiple networks, ensure the name is not always
+   MaticUsd2 but instead MaticUsd3, MaticUsd4, ... every time a different name.
 5. You'll see your MaticUsd2 module in your ignition directory as well, with this content:
 
    ```javascript
