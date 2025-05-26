@@ -16,7 +16,7 @@ extendEnvironment((hre) => {
     };
 
     hre.blueprints.registerBlueprint(
-        "chainlink:vrf:consumer-contract", "VRFConsumerV2Plus", "A Chainlink VRFConsumerV2Plus contract",
+        "chainlink:vrf:consumer", "VRFConsumerV2Plus", "A Chainlink VRFConsumerV2Plus contract",
         path.resolve(baseDir, "solidity", "VRFConsumerV2Plus.sol.template"), "solidity", [
             solidityVersionArgument,
             {
@@ -177,7 +177,7 @@ extendEnvironment((hre) => {
         );
 
         hre.blueprints.registerBlueprint(
-            "chainlink:vrf:coordinator-mock-contract", "VRFCoordinatorV2PlusMock", "A Chainlink VRFCoordinatorV2_5Mock contract to be used in the local network",
+            "chainlink:vrf:coordinator-mock", "VRFCoordinatorV2PlusMock", "A Chainlink VRFCoordinatorV2_5Mock contract to be used in the local network",
             path.resolve(baseDir, "solidity", "VRFCoordinatorV2_5Mock.sol.template"), "solidity", [
                 solidityVersionArgument,
                 {
@@ -332,75 +332,77 @@ extendEnvironment((hre) => {
                         remoteValueType: "VRF gas lanes",
                         loader: () => getVRFLaneHashes()
                     }
-                }
-            ]
-        );
-
-        new hre.methodPrompts.ContractMethodPrompt(
-            "send", "createSubscription", {
-                onError: (e) => {
-                    console.error("There was an error while running this method");
-                    console.error(e);
-                },
-                onSuccess: async (tx) => {
-                    console.log("Subscription id:", await hre.common.getTransactionLogs(tx)[0].args[0]);
-                }
-            }, [], {}
-        ).asTask(
-            "chainlink:vrf:create-subscription",
-            "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the LINK balance"
-        );
-
-        new hre.methodPrompts.ContractMethodPrompt(
-            "send", "fundSubscription", {
-                onError: (e) => {
-                    console.error("There was an error while running this method");
-                    console.error(e);
-                },
-                onSuccess: (tx) => {
-                    console.log("tx:", tx);
-                }
-            }, [
-                {
-                    name: "subscriptionId",
-                    description: "The id of the subscription to fund (with LINK)",
-                    message: "Choose the id of the subscription to fund (with LINK)",
-                    argumentType: "uint256"
-                },
-                {
-                    name: "amount",
-                    description: "The amount to FUND, expressed in LINK fractions",
-                    message: "Choose the amount to FUND (in fractions - 1e18 means 1 LINK)",
-                    argumentType: "uint256"
-                }
-            ], {}
-        ).asTask(
-            "chainlink:vrf:fund-subscription",
-            "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the LINK balance"
-        );
-
-        new hre.methodPrompts.ContractMethodPrompt(
-            "send", "fundSubscriptionWithNative", {
-                onError: (e) => {
-                    console.error("There was an error while running this method");
-                    console.error(e);
-                },
-                onSuccess: (tx) => {
-                    console.log("tx:", tx);
-                }
-            }, [
-                {
-                    name: "subscriptionId",
-                    description: "The id of the subscription to fund (with LINK)",
-                    message: "Choose the id of the subscription to fund (with LINK)",
-                    argumentType: "uint256"
-                }
-            ], {
-                value: {onAbsent: "prompt"}
-            }
-        ).asTask(
-            "chainlink:vrf:fund-subscription-with-native",
-            "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the native balance"
-        );
+                }]
+            );
     }
+
+    // Commands that will be available for both local and remote networks.
+    // These commands involve creating and funding subscriptions.
+
+    new hre.methodPrompts.ContractMethodPrompt(
+        "send", "createSubscription", {
+            onError: (e) => {
+                console.error("There was an error while running this method");
+                console.error(e);
+            },
+            onSuccess: async (tx) => {
+                console.log("Subscription id:", await hre.common.getTransactionLogs(tx)[0].args[0]);
+            }
+        }, [], {}
+    ).asTask(
+        "chainlink:vrf:create-subscription",
+        "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the LINK balance"
+    );
+
+    new hre.methodPrompts.ContractMethodPrompt(
+        "send", "fundSubscription", {
+            onError: (e) => {
+                console.error("There was an error while running this method");
+                console.error(e);
+            },
+            onSuccess: (tx) => {
+                console.log("tx:", tx);
+            }
+        }, [
+            {
+                name: "subscriptionId",
+                description: "The id of the subscription to fund (with LINK)",
+                message: "Choose the id of the subscription to fund (with LINK)",
+                argumentType: "uint256"
+            },
+            {
+                name: "amount",
+                description: "The amount to FUND, expressed in LINK fractions",
+                message: "Choose the amount to FUND (in fractions - 1e18 means 1 LINK)",
+                argumentType: "uint256"
+            }
+        ], {}
+    ).asTask(
+        "chainlink:vrf:fund-subscription",
+        "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the LINK balance"
+    );
+
+    new hre.methodPrompts.ContractMethodPrompt(
+        "send", "fundSubscriptionWithNative", {
+            onError: (e) => {
+                console.error("There was an error while running this method");
+                console.error(e);
+            },
+            onSuccess: (tx) => {
+                console.log("tx:", tx);
+            }
+        }, [
+            {
+                name: "subscriptionId",
+                description: "The id of the subscription to fund (with LINK)",
+                message: "Choose the id of the subscription to fund (with LINK)",
+                argumentType: "uint256"
+            }
+        ], {
+            value: {onAbsent: "prompt"}
+        }
+    ).asTask(
+        "chainlink:vrf:fund-subscription-with-native",
+        "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the native balance"
+    );
 });
