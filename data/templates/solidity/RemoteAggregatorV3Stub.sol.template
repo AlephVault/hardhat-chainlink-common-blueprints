@@ -7,7 +7,7 @@ import "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.so
  * This is not an actual contract implementation but a stub, useful to refer
  * remotely (externally) deployed contracts satisfying AggregatorV3Interface.
  */
-contract RemoteAggregatorV3Stub is AggregatorV3Interface {
+contract #SCRIPT_NAME# is AggregatorV3Interface {
     function decimals() external view returns (uint8) { return 0; }
 
     function description() external view returns (string memory) { return ""; }
