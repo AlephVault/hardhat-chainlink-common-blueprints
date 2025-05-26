@@ -337,6 +337,21 @@ extendEnvironment((hre) => {
         );
 
         new hre.methodPrompts.ContractMethodPrompt(
+            "send", "createSubscription", {
+                onError: (e) => {
+                    console.error("There was an error while running this method");
+                    console.error(e);
+                },
+                onSuccess: async (tx) => {
+                    console.log("Subscription id:", await hre.common.getTransactionLogs(tx)[0].args[0]);
+                }
+            }, [], {}
+        ).asTask(
+            "chainlink:vrf:create-subscription",
+            "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the LINK balance"
+        );
+
+        new hre.methodPrompts.ContractMethodPrompt(
             "send", "fundSubscription", {
                 onError: (e) => {
                     console.error("There was an error while running this method");
