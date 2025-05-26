@@ -90,10 +90,10 @@ extendEnvironment((hre) => {
             "chainlink:price-feed:set-answer",
             "Invokes setAnswer(int256) on an AggregatorV3Interface-implementing (i.e. Price Feed) contract"
         );
-    } else{
+    } else {
         hre.blueprints.registerBlueprint(
-            "chainlink:feed:feed-external-deployment", "AggregatorV3Interface", "An ignition module referencing an existing ChainLink AggregatorV3Interface (PriceFeed or not)",
-            path.resolve(baseDir, "ignition-modules", "AggregatorV3Interface.js.template"), "ignition-module", [
+            "chainlink:feed:feed-external-deployment", "RemoteAggregatorV3", "An ignition module referencing an existing ChainLink AggregatorV3Interface (PriceFeed or not)",
+            path.resolve(baseDir, "ignition-modules", "RemoteAggregatorV3.js.template"), "ignition-module", [
                 {
                     name: "CONTRACT_ADDRESS",
                     description: "The address of an existing feed contract",
