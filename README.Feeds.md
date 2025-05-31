@@ -144,8 +144,8 @@ module.exports = buildModule("MaticUsd", (m) => {
 });
 ```
 
-Change the parameters of `m.contract` to a sensible value, like `["100000000", "An awesome feed", 8, 1]`. This file
-will be used for local networks only.
+Change the parameters of `m.contract` to a sensible value, like `["100000000", "An awesome feed", 8, 1]`.
+This file will be used for local networks only.
 
 ### Main and Test networks
 
@@ -170,19 +170,19 @@ Since there can be many networks set up in a project, this setup will be needed 
 3. Run the following command to create an ignition module to reference a per-network:
 
    ```shell
-   npx hardhat blueprint apply chainlink:feed:deployment --network your-network
+   npx hardhat blueprint apply chainlink:feed:deployment --output-file MaticUsd-XXXXX --network your-network
    ```
 
-4. Give it a name (let's assume MaticUsd2) and choose a contract (the contract must be a Feed Stub or, in the worst
+4. Give it the same name (i.e. MaticUsd) and choose a contract (the contract must be a Feed Stub or, in the worst
    case, Feed Mock you already created in prior step(s)). Then, from the list of feeds supported in your network,
-   choose the one you want to reference. If this setup is run for multiple networks, ensure the name is not always
-   MaticUsd2 but instead MaticUsd3, MaticUsd4, ... every time a different name.
-5. You'll see your MaticUsd2 module in your ignition directory as well, with this content:
+   choose the one you want to reference. Ensure `XXXXX` is the id of the chain you configured as `your-network`.
+5. You'll see your MaticUsd-XXXXX module in your ignition directory as well (again: where XXXXX is the chain id
+   for the network), with this content:
 
    ```javascript
    const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
 
-   module.exports = buildModule("MaticUsd2", (m) => { // or: MaticUsd3, MaticUsd4...
+   module.exports = buildModule("MaticUsd", (m) => { // or: MaticUsd3, MaticUsd4...
        const contract = m.contractAt(
            // In my example, it's the Polygon Amoy address of MATIC / USD feed.
            "AggregatorV3Interface", "0x001382149eBa3441043c1c66972b4772963f5D43"
@@ -196,18 +196,13 @@ Since there can be many networks set up in a project, this setup will be needed 
 
 ### Unified deployment
 
-So far, you have a lot of new modules, one for each network. Rename all the internal module names (inside each file)
-to a unified name (e.g. MaticUsd) and then rename all the files with the proper chain id. For example, assume you
-have a local network, an entry for Polygon Mainnet (137) and an entry for Polygon Amoy (80002) and you generated the
-files to be like this:
+By this point, I'm assuming the internal name of the module is always `MaticUsd` for this example, and names
+for the module files are all `MaticUsd.js` (local and default case) and `MaticUsd-XXXXX.js` (specific networks).
 
-1. MaticUsd.js for the local mock.
-2. MaticUsd2.js with the --network amoy parameter chosen (thus having the in-Amoy address of the MATIC / USD feed).
-3. MaticUsd3.js with the --network matic parameter chosen (this having the in-mainnet one).
+This step involves applying the unified deployment (a.k.a. `ignition's Deploy Everything` feature, which is
+a custom feature of these newly installed packages, not a Hardhat feature itself).
 
-The new names must become, respecting the order: MaticUsd.js, MaticUsd-80002.js and MaticUsd-137.js respectively.
-
-Finally, run this command to add this to the unified deployment pipeline ("Deploy Everything"):
+Run this command to add this to the unified deployment pipeline ("Deploy Everything"):
 
 ```shell
 npx hardhat ignition deploy-everything add --module ignition/modules/MaticUsd.js
@@ -217,6 +212,9 @@ This will add the module to the pipeline and the correct one will be executed de
 network is added to the hardhat config file, the mock will be executed instead! ensure to repeat the steps to add
 an ignition module or create it manually by copying / pasting / renaming and choosing the appropriate address
 from the official Chainlink documentation).
+
+_Note how this step must be run only once - It will automatically account for all the MaticUsd-XXXX.js files defined
+in the previous steps._
 
 ## Available Commands
 
