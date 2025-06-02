@@ -15,6 +15,51 @@ extendEnvironment((hre) => {
         argumentType: "solidity"
     };
 
+    if (["hardhat", "localhost"].includes(hre.network.name)) {
+        hre.blueprints.registerBlueprint(
+            "chainlink:vrf:coordinator-mock", "VRFCoordinatorV2PlusMock", "A Chainlink VRFCoordinatorV2_5Mock contract to be used in the local network",
+            path.resolve(baseDir, "solidity", "VRFCoordinatorV2_5Mock.sol.template"), "solidity", [
+                solidityVersionArgument,
+                {
+                    name: "BASE_FEE",
+                    description: "The base fee for requests, expressed in LINK fractions",
+                    message: "Choose a base fee for the requests",
+                    argumentType: "uint96",
+                    initial: 100000000000000000n
+                },
+                {
+                    name: "GAS_PRICE",
+                    description: "The gas price for requests, expressed in LINK fractions",
+                    message: "Choose a gas price for the requests",
+                    argumentType: "uint96",
+                    initial: 1000000000n
+                },
+                {
+                    name: "WEI_PER_UNIT_LINK",
+                    description: "The LINK/NATIVE rate",
+                    message: "Choose the amount of native wei that costs a single LINK token",
+                    argumentType: "int256",
+                    initial: 7500000000000000n
+                }
+            ]
+        );
+
+        hre.blueprints.registerBlueprint(
+            "chainlink:vrf:coordinator-mock-deployment", "VRFCoordinatorV2_5Mock", "A Chainlink VRFCoordinatoeV2_5Mock deployment module to be used in the local network",
+            path.resolve(baseDir, "ignition-modules", "VRFCoordinatorV2_5Mock.js.template"),
+            "ignition-module", [
+                {
+                    name: "CONTRACT_NAME",
+                    description: "The type to use for the contract",
+                    message: "Choose one of your contract artifacts (it must be a VRFCoordinatorV2_5Mock contract)",
+                    argumentType: "contract"
+                }
+            ]
+        );
+    } else {
+
+    }
+
     hre.blueprints.registerBlueprint(
         "chainlink:vrf:consumer", "VRFConsumerV2Plus", "A Chainlink VRFConsumerV2Plus contract",
         path.resolve(baseDir, "solidity", "VRFConsumerV2Plus.sol.template"), "solidity", [
@@ -176,47 +221,6 @@ extendEnvironment((hre) => {
             ]
         );
 
-        hre.blueprints.registerBlueprint(
-            "chainlink:vrf:coordinator-mock", "VRFCoordinatorV2PlusMock", "A Chainlink VRFCoordinatorV2_5Mock contract to be used in the local network",
-            path.resolve(baseDir, "solidity", "VRFCoordinatorV2_5Mock.sol.template"), "solidity", [
-                solidityVersionArgument,
-                {
-                    name: "BASE_FEE",
-                    description: "The base fee for requests, expressed in LINK fractions",
-                    message: "Choose a base fee for the requests",
-                    argumentType: "uint96",
-                    initial: 100000000000000000n
-                },
-                {
-                    name: "GAS_PRICE",
-                    description: "The gas price for requests, expressed in LINK fractions",
-                    message: "Choose a gas price for the requests",
-                    argumentType: "uint96",
-                    initial: 1000000000n
-                },
-                {
-                    name: "WEI_PER_UNIT_LINK",
-                    description: "The LINK/NATIVE rate",
-                    message: "Choose the amount of native wei that costs a single LINK token",
-                    argumentType: "int256",
-                    initial: 7500000000000000n
-                }
-            ]
-        );
-
-        hre.blueprints.registerBlueprint(
-            "chainlink:vrf:coordinator-mock-deployment", "VRFCoordinatorV2_5Mock", "A Chainlink VRFCoordinatoeV2_5Mock deployment module to be used in the local network",
-            path.resolve(baseDir, "ignition-modules", "VRFCoordinatorV2_5Mock.js.template"),
-            "ignition-module", [
-                {
-                    name: "CONTRACT_NAME",
-                    description: "The type to use for the contract",
-                    message: "Choose one of your contract artifacts (it must be a VRFCoordinatorV2_5Mock contract)",
-                    argumentType: "contract"
-                }
-            ]
-        );
-
         new hre.methodPrompts.ContractMethodPrompt(
             "custom", async (contract) => {
                 return await hre.common.getLogs(contract, "RandomWordsRequested");
@@ -235,38 +239,6 @@ extendEnvironment((hre) => {
         ).asTask(
             "chainlink:vrf:list-requests",
             "Lists the requests from a VRF coordinator V2 / V2.5 contract"
-        );
-
-        new hre.methodPrompts.ContractMethodPrompt(
-            "custom", async (contract, _, txOptions) => {
-                const stopper = await hre.common.watchLogs(contract, "RandomWordsRequested", [],
-                                           async function({args: {requestId, sender, callbackGasLimit}}) {
-                    console.log("Received request id:", requestId, "from sender:", sender);
-                    await hre.common.send(
-                        contract, "fulfillRandomWords", [requestId, sender],
-                        {...txOptions, gas: callbackGasLimit}
-                    );
-                });
-
-                try {
-                    while(true) {
-                        await new Promise((resolve) => setTimeout(resolve, 1000));
-                    }
-                } finally {
-                    stopper();
-                }
-            }, {
-                onError: (e) => {
-                    console.error("There was an error while running this method");
-                    console.error(e);
-                },
-                onSuccess: () => {
-                    console.log(`Worker finished successfully`);
-                }
-            }, [], {}
-        ).asTask(
-            "chainlink:vrf:fulfill-random-words-worker",
-            "Runs a worker that fulfills a random words request in a VRF coordinator V2 / V2.5 MOCK contract"
         );
 
         new hre.methodPrompts.ContractMethodPrompt(
@@ -295,6 +267,38 @@ extendEnvironment((hre) => {
         ).asTask(
             "chainlink:vrf:fulfill-random-words",
             "Fulfills a random words request in a VRF coordinator V2 / V2.5 MOCK contract"
+        );
+
+        new hre.methodPrompts.ContractMethodPrompt(
+            "custom", async (contract, _, txOptions) => {
+                const stopper = await hre.common.watchLogs(contract, "RandomWordsRequested", [],
+                    async function({args: {requestId, sender, callbackGasLimit}}) {
+                        console.log("Received request id:", requestId, "from sender:", sender);
+                        await hre.common.send(
+                            contract, "fulfillRandomWords", [requestId, sender],
+                            {...txOptions, gas: callbackGasLimit}
+                        );
+                    });
+
+                try {
+                    while(true) {
+                        await new Promise((resolve) => setTimeout(resolve, 1000));
+                    }
+                } finally {
+                    stopper();
+                }
+            }, {
+                onError: (e) => {
+                    console.error("There was an error while running this method");
+                    console.error(e);
+                },
+                onSuccess: () => {
+                    console.log(`Worker finished successfully`);
+                }
+            }, [], {}
+        ).asTask(
+            "chainlink:vrf:fulfill-random-words-worker",
+            "Runs a worker that fulfills a random words request in a VRF coordinator V2 / V2.5 MOCK contract"
         );
     } else {
         hre.blueprints.registerBlueprint(
