@@ -89,6 +89,64 @@ extendEnvironment((hre) => {
         );
     }
 
+    new hre.methodPrompts.ContractMethodPrompt(
+        "custom", async (contract) => {
+            return await hre.common.getLogs(contract, "SubscriptionCreated");
+        }, {
+            onError: (e) => {
+                console.error("There was an error while running this method");
+                console.error(e);
+            },
+            onSuccess: (data) => {
+                console.log(`Subscriptions: ${data.length || 'no'} elements`);
+                data.forEach(({args: {subId}}) => {
+                    console.log("Subscription id:", subId);
+                })
+            }
+        }, [], {}
+    ).asTask(
+        "chainlink:vrf:list-subscriptions",
+        "Lists the subscriptions from a VRF coordinator V2 / V2.5 contract"
+    );
+
+    new hre.methodPrompts.ContractMethodPrompt(
+        "call", "getSubscription", {
+            onError: (e) => {
+                console.error("There was an error while running this method");
+                console.error(e);
+            },
+            onSuccess: (data) => {
+                // Data is: (uint96 balance, uint96 nativeBalance, uint64 reqCount, address subOwner, address[] memory consumers)
+                console.log("Subscription data:", data);
+            }
+        }, [
+            {
+                name: "subscriptionId",
+                description: "The id of the subscription to retrieve",
+                message: "Choose the id of the subscription to retrieve",
+                argumentType: "uint256"
+            },
+        ], {}
+    ).asTask(
+        "chainlink:vrf:get-subscription",
+        "Invokes getSubscription on a VRF coordinator V2 / V2.5 contract"
+    );
+
+    new hre.methodPrompts.ContractMethodPrompt(
+        "send", "createSubscription", {
+            onError: (e) => {
+                console.error("There was an error while running this method");
+                console.error(e);
+            },
+            onSuccess: async (tx) => {
+                console.log("Subscription id:", await hre.common.getTransactionLogs(tx)[0].args[0]);
+            }
+        }, [], {}
+    ).asTask(
+        "chainlink:vrf:create-subscription",
+        "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the LINK balance"
+    );
+
     hre.blueprints.registerBlueprint(
         "chainlink:vrf:consumer", "VRFConsumerV2Plus", "A Chainlink VRFConsumerV2Plus contract",
         path.resolve(baseDir, "solidity", "VRFConsumerV2Plus.sol.template"), "solidity", [
@@ -177,49 +235,6 @@ extendEnvironment((hre) => {
     ).asTask(
         "chainlink:vrf:remove-subscription-consumer",
         "Invokes removeConsumer on a VRF coordinator V2 / V2.5 contract for a given VRFConsumer V2 / V2Plus contract"
-    );
-
-    new hre.methodPrompts.ContractMethodPrompt(
-        "custom", async (contract) => {
-            return await hre.common.getLogs(contract, "SubscriptionCreated");
-        }, {
-            onError: (e) => {
-                console.error("There was an error while running this method");
-                console.error(e);
-            },
-            onSuccess: (data) => {
-                console.log(`Subscriptions: ${data.length || 'no'} elements`);
-                data.forEach(({args: {subId}}) => {
-                    console.log("Subscription id:", subId);
-                })
-            }
-        }, [], {}
-    ).asTask(
-        "chainlink:vrf:list-subscriptions",
-        "Lists the subscriptions from a VRF coordinator V2 / V2.5 contract"
-    );
-
-    new hre.methodPrompts.ContractMethodPrompt(
-        "call", "getSubscription", {
-            onError: (e) => {
-                console.error("There was an error while running this method");
-                console.error(e);
-            },
-            onSuccess: (data) => {
-                // Data is: (uint96 balance, uint96 nativeBalance, uint64 reqCount, address subOwner, address[] memory consumers)
-                console.log("Subscription data:", data);
-            }
-        }, [
-            {
-                name: "subscriptionId",
-                description: "The id of the subscription to retrieve",
-                message: "Choose the id of the subscription to retrieve",
-                argumentType: "uint256"
-            },
-        ], {}
-    ).asTask(
-        "chainlink:vrf:get-subscription",
-        "Invokes getSubscription on a VRF coordinator V2 / V2.5 contract"
     );
 
     if (["hardhat", "localhost"].includes(hre.network.name)) {
@@ -371,21 +386,6 @@ extendEnvironment((hre) => {
 
     // Commands that will be available for both local and remote networks.
     // These commands involve creating and funding subscriptions.
-
-    new hre.methodPrompts.ContractMethodPrompt(
-        "send", "createSubscription", {
-            onError: (e) => {
-                console.error("There was an error while running this method");
-                console.error(e);
-            },
-            onSuccess: async (tx) => {
-                console.log("Subscription id:", await hre.common.getTransactionLogs(tx)[0].args[0]);
-            }
-        }, [], {}
-    ).asTask(
-        "chainlink:vrf:create-subscription",
-        "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the LINK balance"
-    );
 
     new hre.methodPrompts.ContractMethodPrompt(
         "send", "fundSubscription", {
