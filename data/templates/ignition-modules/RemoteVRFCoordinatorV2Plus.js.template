@@ -1,0 +1,9 @@
+const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
+
+module.exports = buildModule("#SCRIPT_NAME#", (m) => {
+  const contract = m.contractAt(
+    "#CONTRACT_NAME#", "#CONTRACT_ADDRESS#"
+  );
+
+  return { contract };
+});
