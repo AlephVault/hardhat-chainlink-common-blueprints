@@ -171,6 +171,51 @@ extendEnvironment((hre) => {
         "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the native balance"
     );
 
+    if (["hardhat", "localhost"].includes(hre.network.name)) {
+        new hre.methodPrompts.ContractMethodPrompt(
+            "send", "fundSubscription", {
+                onError: (e) => {
+                    console.error("There was an error while running this method");
+                    console.error(e);
+                },
+                onSuccess: (tx) => {
+                    console.log("tx:", tx);
+                }
+            }, [
+                {
+                    name: "subscriptionId",
+                    description: "The id of the subscription to fund (with LINK)",
+                    message: "Choose the id of the subscription to fund (with LINK)",
+                    argumentType: "uint256"
+                },
+                {
+                    name: "amount",
+                    description: "The amount to FUND, expressed in LINK fractions",
+                    message: "Choose the amount to FUND (in fractions - 1e18 means 1 LINK)",
+                    argumentType: "uint256"
+                }
+            ], {}
+        ).asTask(
+            "chainlink:vrf:fund-subscription",
+            "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the LINK balance"
+        );
+    } else {
+        new hre.methodPrompts.ContractMethodPrompt(
+            "custom", async (contract) => {
+                console.error(
+                    "This method is not supported in non-local networks. Fund your subscription " +
+                    "by funding your LINK amount"
+                );
+            }, {
+                onError: (e) => {},
+                onSuccess: (data) => {}
+            }, [], {}
+        ).asTask(
+            "chainlink:vrf:fund-subscription",
+            "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the LINK balance"
+        );
+    }
+
     hre.blueprints.registerBlueprint(
         "chainlink:vrf:consumer", "VRFConsumerV2Plus", "A Chainlink VRFConsumerV2Plus contract",
         path.resolve(baseDir, "solidity", "VRFConsumerV2Plus.sol.template"), "solidity", [
@@ -407,35 +452,4 @@ extendEnvironment((hre) => {
                 }]
             );
     }
-
-    // Commands that will be available for both local and remote networks.
-    // These commands involve creating and funding subscriptions.
-
-    new hre.methodPrompts.ContractMethodPrompt(
-        "send", "fundSubscription", {
-            onError: (e) => {
-                console.error("There was an error while running this method");
-                console.error(e);
-            },
-            onSuccess: (tx) => {
-                console.log("tx:", tx);
-            }
-        }, [
-            {
-                name: "subscriptionId",
-                description: "The id of the subscription to fund (with LINK)",
-                message: "Choose the id of the subscription to fund (with LINK)",
-                argumentType: "uint256"
-            },
-            {
-                name: "amount",
-                description: "The amount to FUND, expressed in LINK fractions",
-                message: "Choose the amount to FUND (in fractions - 1e18 means 1 LINK)",
-                argumentType: "uint256"
-            }
-        ], {}
-    ).asTask(
-        "chainlink:vrf:fund-subscription",
-        "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the LINK balance"
-    );
 });
