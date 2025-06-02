@@ -45,19 +45,48 @@ extendEnvironment((hre) => {
         );
 
         hre.blueprints.registerBlueprint(
-            "chainlink:vrf:coordinator-mock-deployment", "VRFCoordinatorV2_5Mock", "A Chainlink VRFCoordinatoeV2_5Mock deployment module to be used in the local network",
+            "chainlink:vrf:coordinator-deployment", "VRFCoordinatorV2Plus", "A Chainlink VRFCoordinatorV2_5Mock deployment module to be used in the local network",
             path.resolve(baseDir, "ignition-modules", "VRFCoordinatorV2_5Mock.js.template"),
             "ignition-module", [
                 {
                     name: "CONTRACT_NAME",
-                    description: "The type to use for the contract",
+                    description: "The contract to make the deployment for",
                     message: "Choose one of your contract artifacts (it must be a VRFCoordinatorV2_5Mock contract)",
                     argumentType: "contract"
                 }
             ]
         );
     } else {
+        hre.blueprints.registerBlueprint(
+            "chainlink:vrf:coordinator-stub", "RemoteVRFCoordinatorV2PlusStub",
+            "A Chainlink VRF V2.5 Coordinator stub contract to be referenced in a remote network",
+            path.resolve(baseDir, "solidity", "RemoteVRFCoordinatorV2PlusStub.sol.template"), "solidity", [
+                solidityVersionArgument
+            ]
+        );
 
+        hre.blueprints.registerBlueprint(
+            "chainlink:vrf:coordinator-deployment", "RemoteVRFCoordinatorV2Plus", "A Chainlink VRFCoordinatorV2Plus stub deployment module to be used in remote networks",
+            path.resolve(baseDir, "ignition-modules", "RemoteVRFCoordinatorV2Plus.js.template"),
+            "ignition-module", [
+                {
+                    name: "CONTRACT_NAME",
+                    description: "The contract to make the deployment for",
+                    message: "Choose one of your contract artifacts (it must be a VRFCoordinatorV2Plus stub contract)",
+                    argumentType: "contract"
+                },
+                {
+                    name: "CONTRACT_ADDRESS",
+                    description: "The address of an existing VRF contract",
+                    message: "Choose the existing VRF contract for this network",
+                    argumentType: {
+                        type: "plus:hardhat:given-or-remote-value-select",
+                        remoteValueType: "VRF Coordinator contracts",
+                        loader: () => getVRFCoordinators()
+                    }
+                }
+            ]
+        );
     }
 
     hre.blueprints.registerBlueprint(
