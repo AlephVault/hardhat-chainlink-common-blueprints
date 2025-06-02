@@ -96,6 +96,12 @@ extendEnvironment((hre) => {
             "chainlink:feed:deployment", "RemoteAggregatorV3", "An ignition module referencing an existing ChainLink AggregatorV3Interface (PriceFeed or not)",
             path.resolve(baseDir, "ignition-modules", "RemoteAggregatorV3.js.template"), "ignition-module", [
                 {
+                    name: "CONTRACT_NAME",
+                    description: "The contract to make the deployment for",
+                    message: "Choose one of your contract artifacts (it must be an AggregatorV3 stub contract)",
+                    argumentType: "contract"
+                },
+                {
                     name: "CONTRACT_ADDRESS",
                     description: "The address of an existing feed contract",
                     message: "Choose the existing feed contract for this network",
