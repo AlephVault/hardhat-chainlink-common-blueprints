@@ -147,6 +147,30 @@ extendEnvironment((hre) => {
         "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the LINK balance"
     );
 
+    new hre.methodPrompts.ContractMethodPrompt(
+        "send", "fundSubscriptionWithNative", {
+            onError: (e) => {
+                console.error("There was an error while running this method");
+                console.error(e);
+            },
+            onSuccess: (tx) => {
+                console.log("tx:", tx);
+            }
+        }, [
+            {
+                name: "subscriptionId",
+                description: "The id of the subscription to fund (with LINK)",
+                message: "Choose the id of the subscription to fund (with LINK)",
+                argumentType: "uint256"
+            }
+        ], {
+            value: {onAbsent: "prompt"}
+        }
+    ).asTask(
+        "chainlink:vrf:fund-subscription-with-native",
+        "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the native balance"
+    );
+
     hre.blueprints.registerBlueprint(
         "chainlink:vrf:consumer", "VRFConsumerV2Plus", "A Chainlink VRFConsumerV2Plus contract",
         path.resolve(baseDir, "solidity", "VRFConsumerV2Plus.sol.template"), "solidity", [
@@ -413,29 +437,5 @@ extendEnvironment((hre) => {
     ).asTask(
         "chainlink:vrf:fund-subscription",
         "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the LINK balance"
-    );
-
-    new hre.methodPrompts.ContractMethodPrompt(
-        "send", "fundSubscriptionWithNative", {
-            onError: (e) => {
-                console.error("There was an error while running this method");
-                console.error(e);
-            },
-            onSuccess: (tx) => {
-                console.log("tx:", tx);
-            }
-        }, [
-            {
-                name: "subscriptionId",
-                description: "The id of the subscription to fund (with LINK)",
-                message: "Choose the id of the subscription to fund (with LINK)",
-                argumentType: "uint256"
-            }
-        ], {
-            value: {onAbsent: "prompt"}
-        }
-    ).asTask(
-        "chainlink:vrf:fund-subscription-with-native",
-        "Invokes fundSubscription on a mock VRF coordinator 2.5 contract, incrementing the native balance"
     );
 });
