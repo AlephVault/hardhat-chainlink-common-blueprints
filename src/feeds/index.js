@@ -100,7 +100,8 @@ extendEnvironment((hre) => {
             ]
         );
         hre.blueprints.registerBlueprint(
-            "chainlink:feed:deployment", "RemoteAggregatorV3", "An ignition module referencing an existing ChainLink AggregatorV3Interface (PriceFeed or not)",
+            "chainlink:feed:deployment", "RemoteAggregatorV3",
+            "An ignition module referencing an existing ChainLink AggregatorV3Interface (PriceFeed or not)",
             path.resolve(baseDir, "ignition-modules", "RemoteAggregatorV3.js.template"), "ignition-module", [
                 {
                     name: "CONTRACT_NAME",
