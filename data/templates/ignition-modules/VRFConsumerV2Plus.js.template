@@ -50,10 +50,10 @@ module.exports = buildModule("#SCRIPT_NAME#", (m) => {
   // The [] receives as many argument as your contract needs. Those
   // will be passed directly to the constructor.
 
-  const contract = m.contract(
-    "#CONTRACT_NAME#", [subscriptionId, vrfCoordinatorAddress, keyHash]
-  );
   const vrfCoordinator = m.useModule(vrfCoordinatorModule).contract;
+  const contract = m.contract(
+    "#CONTRACT_NAME#", [subscriptionId, vrfCoordinator, keyHash]
+  );
   m.call(vrfCoordinator, "addConsumer", [subscriptionId, contract]);
 
   // In this case, the result is a single object having a contract: key
