@@ -250,6 +250,72 @@ extendEnvironment((hre) => {
         ]
     );
 
+    if (["hardhat", "localhost"].includes(hre.network.name)) {
+        hre.blueprints.registerBlueprint(
+            "chainlink:vrf:consumer-deployment", "VRFConsumerV2Plus", "A Chainlink VRFConsumerV2Plus deployment module to be used in the local network",
+            path.resolve(baseDir, "ignition-modules", "VRFConsumerV2Plus.js.template"), "ignition-module", [
+                {
+                    name: "CONTRACT_NAME",
+                    description: "The type to use for the contract",
+                    message: "Choose one of your contract artifacts (must be a VRFConsumerV2Plus contract)",
+                    argumentType: "contract"
+                },
+                {
+                    name: "SUBSCRIPTION_ID",
+                    description: "The id of the subscription to use",
+                    message: "Choose the id of the subscription to use (it can be an arbitrary value)",
+                    argumentType: "uint256"
+                },
+                {
+                    name: "VRF_COORDINATOR_MODULE",
+                    description: "The VRFCoordinator deployment file",
+                    message: "Choose the proper VRF Coordinator deployment file",
+                    argumentType: {
+                        type: "plus:given-or-select",
+                        choices: getProjectFiles(hre, "ignition/modules", ["js", "ts"])
+                    }
+                }
+            ]
+        );
+    } else {
+        hre.blueprints.registerBlueprint(
+            "chainlink:vrf:consumer-deployment", "VRFConsumerV2Plus", "A Chainlink VRFConsumerV2Plus deployment module to be used in a remote network",
+            path.resolve(baseDir, "ignition-modules", "VRFConsumerV2Plus.NonLocal.js.template"), "ignition-module", [
+                {
+                    name: "CONTRACT_NAME",
+                    description: "The type to use for the contract",
+                    message: "Choose one of your contract artifacts (must be a VRFConsumerV2Plus contract)",
+                    argumentType: "contract"
+                },
+                {
+                    name: "SUBSCRIPTION_IGNITION_PARAMETER",
+                    initial: "subscriptionId",
+                    description: "The name of the ignition parameter that will hold the subscription id for this contract",
+                    message: "Choose a name for an ignition parameter that will hold the subscription id for this contract",
+                    argumentType: "identifier"
+                },
+                {
+                    name: "KEY_HASH",
+                    description: "The gas lane to use",
+                    message: "Choose the proper gas lane to use (check Chainlink's docs for the network to understand the gas prices)",
+                    argumentType: {
+                        type: "plus:hardhat:given-or-remote-value-select",
+                        remoteValueType: "VRF gas lanes",
+                        loader: () => getVRFLaneHashes()
+                    }
+                },
+                {
+                    name: "VRF_COORDINATOR_MODULE",
+                    description: "The VRFCoordinator deployment file",
+                    message: "Choose the proper VRF Coordinator deployment file",
+                    argumentType: {
+                        type: "plus:given-or-select",
+                        choices: getProjectFiles(hre, "ignition/modules", ["js", "ts"])
+                    }
+                }
+            ]);
+    }
+
     new hre.methodPrompts.ContractMethodPrompt(
         "send", "addConsumer", {
             onError: (e) => {
@@ -317,33 +383,6 @@ extendEnvironment((hre) => {
     );
 
     if (["hardhat", "localhost"].includes(hre.network.name)) {
-        hre.blueprints.registerBlueprint(
-            "chainlink:vrf:consumer-deployment", "VRFConsumerV2Plus", "A Chainlink VRFConsumerV2Plus deployment module to be used in the local network",
-            path.resolve(baseDir, "ignition-modules", "VRFConsumerV2Plus.js.template"), "ignition-module", [
-                {
-                    name: "CONTRACT_NAME",
-                    description: "The type to use for the contract",
-                    message: "Choose one of your contract artifacts (must be a VRFConsumerV2Plus contract)",
-                    argumentType: "contract"
-                },
-                {
-                    name: "SUBSCRIPTION_ID",
-                    description: "The id of the subscription to use",
-                    message: "Choose the id of the subscription to use (it can be an arbitrary value)",
-                    argumentType: "uint256"
-                },
-                {
-                    name: "VRF_COORDINATOR_MODULE",
-                    description: "The VRFCoordinator deployment file",
-                    message: "Choose the proper VRF Coordinator deployment file",
-                    argumentType: {
-                        type: "plus:given-or-select",
-                        choices: getProjectFiles(hre, "ignition/modules", ["js", "ts"])
-                    }
-                }
-            ]
-        );
-
         new hre.methodPrompts.ContractMethodPrompt(
             "custom", async (contract) => {
                 return await hre.common.getLogs(contract, "RandomWordsRequested");
@@ -423,43 +462,5 @@ extendEnvironment((hre) => {
             "chainlink:vrf:fulfill-random-words-worker",
             "Runs a worker that fulfills a random words request in a VRF coordinator V2 / V2.5 MOCK contract"
         );
-    } else {
-        hre.blueprints.registerBlueprint(
-            "chainlink:vrf:consumer-deployment", "VRFConsumerV2Plus", "A Chainlink VRFConsumerV2Plus deployment module to be used in a remote network",
-            path.resolve(baseDir, "ignition-modules", "VRFConsumerV2Plus.NonLocal.js.template"), "ignition-module", [
-                {
-                    name: "CONTRACT_NAME",
-                    description: "The type to use for the contract",
-                    message: "Choose one of your contract artifacts (must be a VRFConsumerV2Plus contract)",
-                    argumentType: "contract"
-                },
-                {
-                    name: "SUBSCRIPTION_IGNITION_PARAMETER",
-                    initial: "subscriptionId",
-                    description: "The name of the ignition parameter that will hold the subscription id for this contract",
-                    message: "Choose a name for an ignition parameter that will hold the subscription id for this contract",
-                    argumentType: "identifier"
-                },
-                {
-                    name: "VRF_COORDINATOR",
-                    description: "The VRFCoordinator contract",
-                    message: "Choose the proper VRF Coordinator contract",
-                    argumentType: {
-                        type: "plus:hardhat:given-or-remote-value-select",
-                        remoteValueType: "VRF Coordinator contracts",
-                        loader: () => getVRFCoordinators()
-                    }
-                },
-                {
-                    name: "KEY_HASH",
-                    description: "The gas lane to use",
-                    message: "Choose the proper gas lane to use (check Chainlink's docs for the network to understand the gas prices)",
-                    argumentType: {
-                        type: "plus:hardhat:given-or-remote-value-select",
-                        remoteValueType: "VRF gas lanes",
-                        loader: () => getVRFLaneHashes()
-                    }
-                }]
-            );
     }
 });
