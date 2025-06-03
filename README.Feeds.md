@@ -216,6 +216,15 @@ from the official Chainlink documentation).
 _Note how this step must be run only once - It will automatically account for all the MaticUsd-XXXX.js files defined
 in the previous steps._
 
+Finally, on each relevant network, run the `deploy-everything run` ignition command. For example, for localhost,
+Amoy and Polygon (mainnet) networks run:
+
+```shell
+npx hardhat ignition deploy-everything run --network localhost
+npx hardhat ignition deploy-everything run --network amoy
+npx hardhat ignition deploy-everything run --network polygon
+```
+
 ## Available Commands
 
 This said, there are some commands that are available for Feeds-related features:
