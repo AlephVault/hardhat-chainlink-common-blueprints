@@ -150,7 +150,7 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
     /**
      * Returns a single request.
      */
-    function getRequest(uint256 requestId) external returns (Request) {
+    function getRequest(uint256 requestId) external view returns (Request memory) {
         return requests[requestId];
     }
 }
