@@ -148,7 +148,6 @@ Change the parameters of `m.contract` to a sensible value, like `["100000000", "
 This file will be used for local networks only.
 
 ### Main and Test networks
-
 Here, we'll leverage the power of existing data feeds (we don't want to use mocks here) in the appropriate
 network. The first part is to have a Stub contract in your project. This stub contract is similar to a mock
 but the idea behind is that the stub will not be used at all: will serve as a reference point to have some
@@ -195,7 +194,6 @@ Since there can be many networks set up in a project, this setup will be needed 
 6. Consider whether you need to repeat steps 1-5 for other networks you're interested in.
 
 ### Unified deployment
-
 By this point, I'm assuming the internal name of the module is always `MaticUsd` for this example, and names
 for the module files are all `MaticUsd.js` (local and default case) and `MaticUsd-XXXXX.js` (specific networks).
 
@@ -226,7 +224,6 @@ npx hardhat ignition deploy-everything run --network polygon
 ```
 
 ## Available Commands
-
 This said, there are some commands that are available for Feeds-related features:
 
 1. You can clean the cache of available feeds (this feature is only available for Feeds in this package).
@@ -272,7 +269,6 @@ This said, there are some commands that are available for Feeds-related features
    With this, the feed mock will have a new value.
 
 ## Conclusion
-
 With this in mind, you should be able to properly deploy and interact with feed contracts in
 your other contracts and / or test files as with other contracts in a seamless way (e.g. when
 interacting with feeds to apply conversion rates when selling products).
