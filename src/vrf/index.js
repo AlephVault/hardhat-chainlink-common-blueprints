@@ -66,7 +66,7 @@ extendEnvironment((hre) => {
         );
 
         hre.blueprints.registerBlueprint(
-            "chainlink:vrf:coordinator-deployment", "RemoteVRFCoordinatorV2Plus", "A Chainlink VRFCoordinatorV2Plus stub deployment module to be used in remote networks",
+            "chainlink:vrf:coordinator-deployment", "VRFCoordinatorV2Plus", "A Chainlink VRFCoordinatorV2Plus stub deployment module to be used in remote networks",
             path.resolve(baseDir, "ignition-modules", "RemoteVRFCoordinatorV2Plus.js.template"),
             "ignition-module", [
                 {
