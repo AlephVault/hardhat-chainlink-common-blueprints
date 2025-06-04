@@ -784,6 +784,8 @@ import "@chainlink/contracts/src/v0.8/vrf/dev/interfaces/IVRFCoordinatorV2Plus.s
  * remotely (externally) deployed contracts satisfying RemoteVRFCoordinatorV2PlusStub.
  */
 contract RemoteVRFCoordinatorV2PlusStub is IVRFCoordinatorV2Plus {
+    event SubscriptionCreated(uint256 indexed subId, address owner);
+
     constructor(){}
 
     function addConsumer(uint256 subId, address consumer) external {}
@@ -997,6 +999,86 @@ npx hardhat ignition deploy-everything run --network some-network --parameters .
 With this, the consumer will be set up. Now, take the address of the contract (explore the deployed_addresses.json
 file among your ignition files or use `hardhat ignition status chain-XXXXX`) and set it up in your subscription as
 a consumer.
+
+The next sanity check is to see what happens in console, as in the very first interaction, but in the new network:
+
+```shell
+npx hardhat console --network some-network
+```
+
+And run the commands:
+
+```javascript
+const consumer = await hre.ignition.getDeployedContract("VRFConsumerV2Plus#VRFConsumerV2Plus")
+await consumer.launchRequest("foo")
+```
+
+With this very dumb logic, if you didn't mess with gas settings, and you have enough funds, then your transaction will
+work. For example, you might want to try the `getRequest` (remember: this is a SAMPLE method in this SAMPLE contract!)
+a few times until the oracle answers:
+
+```javascript
+await consumer.getRequest("foo");
+// Result(2) [ 1n, 0n ]
+await consumer.getRequest("foo");
+// Result(2) [
+//     2n,
+//     2840642384784071225893875060801851730880388857613267824314824719894189555452n
+// ]
+```
+
+With this, you can acknowledge your contract as working!
+
+### Appendix 1: Configuring a private key
+
+Hardhat version 2 is crappy regarding managing private keys. It is insecure and the reason behind Chainlink inventing
+packages like `env-enc`. See their documentation for that matters.
+
+But, for testing purposes, a way to set the private key comes like this:
+
+1. Open your browser wallet. Pick an account of your choice.
+2. Unlock the account's private key (in MetaMask this is done: dot-menu > Account Details > Show private key).
+3. Use a setup like this in your hardhat config file (e.g. for amoy and polygon):
+
+   ```javascript
+   // ...
+
+   module.exports = {
+     // ...
+     networks: {
+       // ...
+       amoy: {
+         url: "https://polygon-amoy-bor-rpc.publicnode.com", // Replace with your provider
+         accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+         chainId: 80002
+       },
+       polygon: {
+         url: "https://polygon-rpc.com", // Replace with your provider
+         accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+         chainId: 137 // Polygon Mainnet Chain ID
+       }
+     }
+   };
+   ```
+
+Notice how the key comes from an environment variable. With this in mind, you can run all the commands against your
+network (i.e. in this example, replacing `some-network` with `amoy` or `polygon`) if you first execute:
+
+```shell
+export PRIVATE_KEY=0x...thePrivateKeyYouTookFromYourWallet...
+```
+
+**BUT THIS IS DANGEROUS**. Ensure you don't leave this terminal open so much time, and that you clear your bash history
+after issuing the relevant commands (this applies for when deploying to mainnet, but have also good practices in the
+testnets). This means: close your terminal when done and, in another terminal, run `bash history -cw` or the equivalent.
+
+Still, there are better practices to handle this, and Hardhat 3 promises to have better accounts management.
+
+### Appendix 2: Creating and funding a subscription from code
+
+This works only for the live networks, since the local network works differently (in particular because users deploy
+local mocks instead of interacting with live contracts). There are commands you can run (again: they require a private
+key to be set, as described in the previous section) for this purpose.
 
 ## Available Commands
 
