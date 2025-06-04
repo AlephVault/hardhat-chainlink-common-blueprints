@@ -756,6 +756,110 @@ The most common causes are:
    enough. By default, the consumer template suggests 1000000 of gas.
 
 ### Main and Test networks
+Now, this part is not as easy. The most important thing you need here is a funded Chainlink VRF subscription.
+
+First, we'll cover referencing an external VRF Coordinator, according to whatever network are you focusing now (e.g.
+a testnet like Amoy, or a mainnet like Polygon). In order to reference an external contract with Hardhat Ignition, the
+contract must be developed and compiled first (i.e. a non-abstract artifact must exist). We'll solve this issue by
+creating a _stub_. A _stub_ is like a mock (and, in fact, you can omit this and just use the same mock, but stubs are
+distinct for the sake of clarity) but has no implementation at all (all the methods are empty or return empty values).
+
+In order to generate the mock, you can try this command (for some non-localhost, non-hardhat, network):
+
+```shell
+npx hardhat blueprint apply chainlink:vrf:coordinator-stub --network some-network
+```
+
+It will ask the name of the contract (I left it by default: RemoteVRFCoordinatorV2PlusStub) and generate its contents
+like this:
+
+```solidity
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity 0.8.24;
+
+import "@chainlink/contracts/src/v0.8/vrf/dev/interfaces/IVRFCoordinatorV2Plus.sol";
+
+/**
+ * This is not an actual contract implementation but a stub, useful to refer
+ * remotely (externally) deployed contracts satisfying RemoteVRFCoordinatorV2PlusStub.
+ */
+contract RemoteVRFCoordinatorV2PlusStub is IVRFCoordinatorV2Plus {
+    constructor(){}
+
+    function addConsumer(uint256 subId, address consumer) external {}
+
+    function removeConsumer(uint256 subId, address consumer) external {}
+
+    function cancelSubscription(uint256 subId, address to) external {}
+
+    function acceptSubscriptionOwnerTransfer(uint256 subId) external {}
+
+    function requestSubscriptionOwnerTransfer(uint256 subId, address newOwner) external {}
+
+    function createSubscription() external returns (uint256) { return 0; }
+
+    function getSubscription(
+        uint256 subId
+    ) external view
+    returns (uint96 balance, uint96 nativeBalance, uint64 reqCount, address owner, address[] memory consumers) {
+        return (0, 0, 0, address(0), new address[](0));
+    }
+
+    function pendingRequestExists(uint256 subId) external view returns (bool) { return false; }
+
+    function getActiveSubscriptionIds(uint256 startIndex, uint256 maxCount) external view returns (uint256[] memory) {
+        return new uint256[](0);
+    }
+
+    function fundSubscriptionWithNative(uint256 subId) external payable {}
+
+    function requestRandomWords(VRFV2PlusClient.RandomWordsRequest calldata req) external returns (uint256) {
+        return 0;
+    }
+}
+```
+
+_Please note that the Solidity version may differ._
+
+This file does nothing, but it will not be used in localhost.
+
+Now, it's time to generate a deployment of this file to the actual (same) network. In fact, the deployment file will
+just _reference_ an existing contract, instead of deploying a new contract (we want to use Chainlink services, after
+all). The command looks like this:
+
+```shell
+npx hardhat compile # Otherwise, you may fail to see the new contract
+# Ensure it is the same network and replace XXXXX with the chain ID of that network
+npx hardhat blueprint apply chainlink:vrf:coordinator-deployment --network some-network --output-file VRFCoordinatorV2Plus-XXXXX
+```
+
+**IMPORTANT**: Following the example in the local network, and in order to make this work with `deploy-everything`,
+ensure the name you give to the module is VRFCoordinatorV2Plus, while the name of the file matches the same pattern,
+VRFCoordinatorV2Plus-XXXXX. This name is not mandatory, but it is strongly advised that the names given for the module
+in all the networks match in file name with the said pattern, and match exactly internally (i.e. the name given to the
+`buildModule` function). So yes, use the name you want **but always a consistently matching name**.
+
+The contents of the file will look like this:
+
+```javascript
+const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
+
+module.exports = buildModule("VRFCoordinatorV2Plus", (m) => {
+    const contract = m.contractAt(
+        "RemoteVRFCoordinatorV2PlusStub", "0xTheVRFAddressForTheNetwork"
+    );
+
+    return { contract };
+});
+```
+
+And, since the reference is already added to the `deploy-everything` feature (since the module file name matches the
+same pattern of the _bare_ file used for localhost network), the module is already added to the feature and can be run:
+
+```shell
+# Ensure it is the same network
+npx hardhat ignition deploy-everything run --network some-network
+```
 
 ## Available Commands
 
