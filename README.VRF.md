@@ -185,4 +185,183 @@ npx hardhat ignition deploy-everything add --module ./ignition/modules/VRFCoordi
 With this, the setup is done for the coordinator mock. The next step is to point to a coordinator on each live network,
 be it a mainnet or testnet.
 
+### Local networks: VRF 2.5 consumer setup
+These are the instructions to set up a consumer contract, and should be followed separately _for each consumer contract
+to be created in the user's ecosystem_. In particular, these instructions are meant for the local network only, and
+separate instructions must be done _for each remote network_ (and yes: _for each consumer contract_, for a total of NxM
+instructions procedures executed by the user).
+
+The first step is to create the consumer contract. Since it's part of the user's logic, this step will be executed once
+and here (NOT again in the remote networks). The command to generate the consumer contract is this:
+
+```shell
+npx hardhat blueprint apply chainlink:vrf:consumer
+```
+
+This command will ask you for many arguments like:
+
+- Maximum intended gas per VRF callback.
+- Number of block confirmations the VRF should wait for before satisfying our request (intended to make sure, the best
+  it can, to ensure the current transaction will remain and not be replaced due to a consensus conflict in the network
+  after 3 blocks).
+- The amount of random numbers (min. 1) that must be generated per request.
+- Whether this contract will use native payments or LINK payments (default).
+
+Don't worry if you fill these arguments wrong: you can still modify the generated contract's code. It will look like
+this (provided the name is set by default, as in this example):
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.24;
+
+import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
+import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
+
+/**
+ * This contract is a VRF consumer. This is a default implementation that
+ * can be changed later at user's please (as long as the call to
+ * `requestRandomWords` is done, it will work and the user can tune it
+ * to have many call implementations).
+ */
+contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
+    // Constants related to the code & consumption model
+    // of our VRF Consumer contract. You are free to move
+    // them to actual variables and arguments if you need
+    // to make them per-network, but ensure you respect
+    // the identifier names in the process.
+    uint32 constant callbackGasLimit = 1000000; // Default: 1000000
+    uint16 constant requestConfirmations = 3; // Default: 3
+    uint32 constant numWords = 1; // Default: 1
+    bool constant nativePayments = false; // Default: false
+
+    // These are per-environment values: The subscription
+    // id and the hash of the gas lane to use (it has to do
+    // with gas prices and priorities, not with the gas
+    // quantity).
+    uint256 private subscriptionId;
+    bytes32 private keyHash;
+
+    /**
+     * The status of the request.
+     */
+    enum RequestStatus { Invalid, Pending, Completed }
+
+    /**
+     * This event is dapp-specific to tell that the request has
+     * started. Users should listen for this event and do any
+     * processing, typically understanding that the dapp will
+     * be properly updated.
+     */
+    // Modify this event as much as you want, but always keeping
+    // in mind that you can have up to 3 indexed arguments and
+    // typically you might like requestId to be one of them.
+    event RequestStarted(uint256 indexed requestId);
+
+    /**
+     * This event is dapp-specific to tell that the request has
+     * completed. Users should listen for this event and do any
+     * processing, typically understanding that the dapp will
+     * be properly updated.
+     */
+    // Modify this event as much as you want, but always keeping
+    // in mind that you can have up to 3 indexed arguments and
+    // typically you might like requestId to be one of them.
+    event RequestCompleted(uint256 indexed requestId);
+
+    /**
+     * The request, being tracked for completion. This request
+     * will hold dapp-logic related to the launched request (an
+     * example: who launched the request and some extra context
+     * to be used in the words-fulfillment handling).
+     */
+    struct Request {
+        /**
+         * The status of the request. Check against Invalid to detect whether
+         * a given request ID was never issued.
+         */
+        RequestStatus status;
+        // Add more variables you deem useful here.
+    }
+
+    /**
+     * The in-progress and fulfilled requests.
+     */
+    mapping(uint256 => Request) private requests;
+
+    // Add more parameters to this constructor when needed.
+    constructor(uint256 _subscriptionId, address _vrfCoordinator, bytes32 _keyHash)
+        VRFConsumerBaseV2Plus(_vrfCoordinator)
+    {
+        subscriptionId = _subscriptionId;
+        keyHash = _keyHash;
+    }
+
+    /**
+     * This internal function is the responsible of requiring
+     * the random numbers to the VRF service.
+     */
+    // It's name can be changed, and also the required arguments
+    // or even the output arguments (return values), visibility
+    // and modifiers. The important part is that this function
+    // is the entry point to request random numbers and that it
+    // must be modified enough so it is not freely invokable by
+    // external users or contracts, but by certain rules instead
+    // (e.g. as part of a game-related request).
+    function triggerDAPPRequest() internal {
+        // Add any prior logic here.
+
+        uint256 requestId = s_vrfCoordinator.requestRandomWords(
+            VRFV2PlusClient.RandomWordsRequest({
+                keyHash: keyHash,
+                subId: subscriptionId,
+                requestConfirmations: requestConfirmations,
+                callbackGasLimit: callbackGasLimit,
+                numWords: numWords,
+                // Adding extraArgs is optional.
+                extraArgs: VRFV2PlusClient._argsToBytes(VRFV2PlusClient.ExtraArgsV1({
+                    // One of the allowed extraArgs is to tell whether
+                    // we will use nativePayments (true) or LINK payments
+                    // (false) in our subscription.
+                    nativePayment: nativePayments
+                }))
+            })
+        );
+
+        // Storing the request is mandatory. It will not raise any error
+        // if not done, but the request will be lost and it will become
+        // wasted money and, of course, it is a bug.
+        // Custom data is allowed and typically recommended depending on
+        // the dapp's logic.
+        requests[requestId] = Request({status: RequestStatus.Pending});
+
+        // Emit the custom event, perhaps adding more data. This is
+        // optional but a typically useful use case.
+        emit RequestStarted(requestId);
+    }
+
+    /**
+     * Attends any incoming response for the issued requests.
+     */
+    function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) internal override {
+        // Get any randomWords[0] to randomWords[numWords - 1].
+        // They ARE random numbers (you're charged for any number
+        // generated this way, as part of the whole execution).
+
+        // Fulfill the request. It is guaranteed that the record
+        // will exist, as long as it is properly stored on launch.
+        Request storage request = requests[requestId];
+        request.status = RequestStatus.Completed;
+        // Fulfilling will involve setting more data in the request.
+
+        // Emit the custom event, perhaps adding more data. This is
+        // optional but a typically useful use case.
+        emit RequestCompleted(requestId);
+    }
+}
+```
+
+_Please note that the Solidity version may differ._
+
+After this boilerplate code is generated, the file should be modified for the user's needs.
+
 ### Main and Test networks

@@ -16,7 +16,7 @@ contract #SCRIPT_NAME# is VRFConsumerBaseV2Plus {
     // them to actual variables and arguments if you need
     // to make them per-network, but ensure you respect
     // the identifier names in the process.
-    uint32 constant callbackGasLimit = #CALLBACK_GAS_LIMIT#; // Default: 3000000
+    uint32 constant callbackGasLimit = #CALLBACK_GAS_LIMIT#; // Default: 1000000
     uint16 constant requestConfirmations = #REQUEST_CONFIRMATIONS#; // Default: 3
     uint32 constant numWords = #NUM_WORDS#; // Default: 1
     bool constant nativePayments = #USE_NATIVE_PAYMENTS#; // Default: false

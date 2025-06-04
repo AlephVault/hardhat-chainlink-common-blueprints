@@ -5,8 +5,10 @@ import {VRFConsumerBaseV2Plus} from "@chainlink/contracts/src/v0.8/vrf/dev/VRFCo
 import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 
 /**
- * This contract is a VRF consumer. This is a sample that
- * was modified slightly to match some dummy needs.
+ * This contract is a VRF consumer. This is a default implementation that
+ * can be changed later at user's please (as long as the call to
+ * `requestRandomWords` is done, it will work and the user can tune it
+ * to have many call implementations).
  */
 contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
     // Constants related to the code & consumption model
@@ -20,12 +22,10 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
     bool constant nativePayments = false; // Default: false
 
     // These are per-environment values: The subscription
-    // id, the address of the coordinator of this random
-    // number generator, and the hash of the gas lane to
-    // use (it has to do with gas prices and priorities,
-    // not with the gas quantity).
+    // id and the hash of the gas lane to use (it has to do
+    // with gas prices and priorities, not with the gas
+    // quantity).
     uint256 private subscriptionId;
-    address private vrfCoordinator;
     bytes32 private keyHash;
 
     /**
@@ -63,14 +63,11 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
      */
     struct Request {
         /**
-         * The random value.
-         */
-        uint256 value;
-        /**
          * The status of the request. Check against Invalid to detect whether
          * a given request ID was never issued.
          */
         RequestStatus status;
+        // Add more variables you deem useful here.
     }
 
     /**
@@ -78,17 +75,11 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
      */
     mapping(uint256 => Request) private requests;
 
-    /**
-     * An internal mapping of a name => the id of a request.
-     */
-    mapping(string => uint256) private nameToRequestId;
-
     // Add more parameters to this constructor when needed.
     constructor(uint256 _subscriptionId, address _vrfCoordinator, bytes32 _keyHash)
         VRFConsumerBaseV2Plus(_vrfCoordinator)
     {
         subscriptionId = _subscriptionId;
-        vrfCoordinator = _vrfCoordinator;
         keyHash = _keyHash;
     }
 
@@ -103,7 +94,7 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
     // must be modified enough so it is not freely invokable by
     // external users or contracts, but by certain rules instead
     // (e.g. as part of a game-related request).
-    function triggerDAPPRequest() internal returns (uint256) {
+    function triggerDAPPRequest() internal {
         // Add any prior logic here.
 
         uint256 requestId = s_vrfCoordinator.requestRandomWords(
@@ -128,22 +119,11 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
         // wasted money and, of course, it is a bug.
         // Custom data is allowed and typically recommended depending on
         // the dapp's logic.
-        requests[requestId] = Request({status: RequestStatus.Pending, value: 0});
+        requests[requestId] = Request({status: RequestStatus.Pending});
 
         // Emit the custom event, perhaps adding more data. This is
         // optional but a typically useful use case.
         emit RequestStarted(requestId);
-
-        return requestId;
-    }
-
-    function launchRequest(string calldata name) external {
-        require(nameToRequestId[name] == 0, "Request already sent");
-        nameToRequestId[name] = triggerDAPPRequest();
-    }
-
-    function getRequestValue(string calldata name) external view returns (Request memory) {
-        return requests[nameToRequestId[name]];
     }
 
     /**
@@ -158,7 +138,6 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
         // will exist, as long as it is properly stored on launch.
         Request storage request = requests[requestId];
         request.status = RequestStatus.Completed;
-        request.value = randomWords[0];
         // Fulfilling will involve setting more data in the request.
 
         // Emit the custom event, perhaps adding more data. This is
