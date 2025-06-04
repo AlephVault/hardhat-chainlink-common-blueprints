@@ -24,12 +24,12 @@ module.exports = {
     },
     amoy: {
       url: "https://polygon-amoy-bor-rpc.publicnode.com", // Replace with your provider
-      accounts: [], // process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 80002
     },
     polygon: {
       url: "https://polygon-rpc.com", // Replace with your provider
-      accounts: [], // process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 137 // Polygon Mainnet Chain ID
     }
   }
