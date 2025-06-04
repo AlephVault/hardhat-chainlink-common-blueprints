@@ -337,10 +337,8 @@ extendEnvironment((hre) => {
                 description: "The address of the consumer contract (intended for VRFConsumer V2 / V2Plus contracts)",
                 message: "Choose the address of the consumer contract (a VRFConsumer V2 / V2Plus one, here)",
                 argumentType: {
-                    prompt: {
-                        type: "plus:hardhat:given-or-deployed-contract-select",
-                        returnAddress: true
-                    },
+                    type: "plus:hardhat:given-or-deployed-contract-select",
+                    returnAddress: true,
                     description: "A deployed VRF consumer"
                 }
             }
@@ -371,9 +369,8 @@ extendEnvironment((hre) => {
                 description: "The address of the consumer contract (intended for VRFConsumer V2 / V2Plus contracts)",
                 message: "Choose the address of the consumer contract (a VRFConsumer V2 / V2Plus one, here)",
                 argumentType: {
-                    prompt: {
-                        type: "plus:hardhat:given-or-deployed-contract-select"
-                    },
+                    type: "plus:hardhat:given-or-deployed-contract-select",
+                    returnAddress: true,
                     description: "A deployed VRF consumer"
                 }
             }
@@ -424,7 +421,11 @@ extendEnvironment((hre) => {
                     name: "consumerAddress",
                     description: "The related consumer contract (it MUST manually match for this mock!)",
                     message: "Choose one of your contract artifacts (must be a VRFConsumer V2 / V2Plus contract)",
-                    argumentType: "contract"
+                    argumentType: {
+                        type: "plus:hardhat:given-or-deployed-contract-select",
+                        returnAddress: true,
+                        description: "A deployed VRF consumer"
+                    }
                 }
             ], {}
         ).asTask(
