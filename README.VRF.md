@@ -1078,10 +1078,112 @@ Still, there are better practices to handle this, and Hardhat 3 promises to have
 
 This works only for the live networks, since the local network works differently (in particular because users deploy
 local mocks instead of interacting with live contracts). There are commands you can run (again: they require a private
-key to be set, as described in the previous section) for this purpose.
+key to be set, as described in the previous section) for this purpose. Those commands are described later in this
+document but essentially are:
+
+1. Creating a subscription and funding it with native currency is supported for both local and live networks.
+2. Getting a subscription's data is supported for both local and live networks.
+3. Funding a subscription with LINK is only supported locally. For live networks, use the Chainlink VRF UI.
+4. Adding consumer contracts to coordinator contracts is supported for both local and live networks.
+   In fact, invoking the coordinator's methods for that purpose is also supported.
+5. Listing random number requests, fulfilling a random number request, and launching the fulfilling automated
+   worker is only supported locally.
+
+With this in mind, users have more CLI options to manage subscriptions to some extent.
 
 ## Available Commands
 
+These are commands to manage subscriptions, consumers, and random words fulfillments.
+
+1. Listing all the subscriptions in a mock:
+
+   ```shell
+   npx hardhat invoke chainlink:vrf:list-subscriptions --network localhost
+   ```
+
+   This works in localhost only (i.e. mocks, not stubs), because the number of subscriptions is small.
+   Choosing a deployed VRF coordinator 2.5 contract, this lists the existing subscriptions.
+
+2. Get data from one subscription (this works live):
+
+   ```shell
+   npx hardhat invoke chainlink:vrf:get-subscription --network some-network
+   ```
+
+   Choosing a deployed VRF coordinator 2.5 contract, and a valid subscription id, returns the subscription's data.
+   This data includes LINK funds, native funds, number of requests in that subscription, owner, and consumers.
+
+3. Creating a subscription (this works live):
+
+   ```shell
+   npx hardhat invoke chainlink:vrf:create-subscription --network some-network
+   ```
+   
+   Choosing a deployed VRF coordinator 2.5 contract, it creates a new subscription (and returns its id).
+
+4. Funding a subscription (this works live for native):
+
+   Funding a subscription is only supported with native currency, not with link, for remote networks.
+   Future versions of this package will include support to fund with LINK. Fow now, use the UI to fund a VRF
+   subscription with LINK. For native, the command is:
+
+   ```shell
+   # In this example, it is funded with 0.1 native currency.
+   npx hardhat invoke chainlink:vrf:fund-subscription-with-native --value 100000000000000000 --network some-network
+   ```
+   
+   The command takes a deployed VRF coordinator 2.5 contract, and a subscription id.
+   
+   Right now, for local networks, funding a subscription with fake LINK is supported:
+
+   ```shell
+   # Please note for this example application:
+   # Will not take any custom private key into account since this
+   # example has no accounts configuration override for localhost.
+   npx hardhat invoke chainlink:vrf:fund-subscription --network localhost
+   ```
+
+   The command takes a deployed VRF coordinator 2.5 contract, a subscription id, and the amount (in wei) to fund.
+
+5. Adding/removing a consumer to/from the coordinator (this works live):
+
+   ```shell
+   npx hardhat invoke chainlink:vrf:add-subscription-consumer --network some-network
+   npx hardhat invoke chainlink:vrf:add-subscription-consumer --network some-network
+   ```
+   
+   Both commands take a deployed VRF coordinator 2.5 contract, a subscription id, and a deployed VRF consumer 2.5
+   contract. The first command registers the consumer and the second one unregisters the consumer.
+
+6. Listing random fulfillment requests in a mock:
+
+   ```shell
+   npx hardhat invoke chainlink:vrf:list-requests --network localhost
+   ```
+   
+   The command takes a deployed VRF coordinator 2.5 mock contract and lists all the requests sent to it.
+
+7. Fulfilling a request in a mock:
+
+   ```shell
+   npx hardhat invoke chainlink:vrf:fulfill-random-words --network localhost
+   ```
+   
+   The command takes a deployed VRF coordinator 2.5 mock contract and a request ID (listed from the previous
+   list command) and fulfills with insecure (yet local-only) random numbers. It also takes which contract is
+   the emitter of the request (pretty lame in my opinion but that's how the method is implemented in the mock
+   contract provided by Chainlink).
+
+8. Launch a random fulfillment worker to satisfy new requests into a mock:
+
+   ```shell
+   npx hardhat invoke chainlink:vrf:fulfill-random-words-worker --network localhost
+   ```
+
+   The command takes a deployed VRF coordinator 2.5 mock contract. This command is an endless loop that will
+   only finish when users hit Ctrl+C.
+
 ## Conclusion
-This package, so far, provides help only for Chainlink Price Feeds and VRF. Chainlink Functions is still an ongoing
-development (and, to be honest, _will_ take some time).
+With this in mind, you should be able to interact with contracts in both local and development environments,
+both by managing the subscriptions locally or via the Chainlink VRF UI. Future versions might include further
+enhancements and support for more commands, but so far this should do it.
