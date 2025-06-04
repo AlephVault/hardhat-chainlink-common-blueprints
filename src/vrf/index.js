@@ -89,25 +89,27 @@ extendEnvironment((hre) => {
         );
     }
 
-    new hre.methodPrompts.ContractMethodPrompt(
-        "custom", async (contract) => {
-            return await hre.common.getLogs(contract, "SubscriptionCreated");
-        }, {
-            onError: (e) => {
-                console.error("There was an error while running this method");
-                console.error(e);
-            },
-            onSuccess: (data) => {
-                console.log(`Subscriptions: ${data.length || 'no'} elements`);
-                data.forEach(({args: {subId}}) => {
-                    console.log("Subscription id:", subId);
-                })
-            }
-        }, [], {}
-    ).asTask(
-        "chainlink:vrf:list-subscriptions",
-        "Lists the subscriptions from a VRF coordinator V2 / V2.5 contract"
-    );
+    if (["hardhat", "localhost"].includes(hre.network.name)) {
+        new hre.methodPrompts.ContractMethodPrompt(
+            "custom", async (contract) => {
+                return await hre.common.getLogs(contract, "SubscriptionCreated");
+            }, {
+                onError: (e) => {
+                    console.error("There was an error while running this method");
+                    console.error(e);
+                },
+                onSuccess: (data) => {
+                    console.log(`Subscriptions: ${data.length || 'no'} elements`);
+                    data.forEach(({args: {subId}}) => {
+                        console.log("Subscription id:", subId);
+                    })
+                }
+            }, [], {}
+        ).asTask(
+            "chainlink:vrf:list-subscriptions",
+            "Lists the subscriptions from a VRF coordinator V2 / V2.5 contract"
+        );
+    }
 
     new hre.methodPrompts.ContractMethodPrompt(
         "call", "getSubscription", {
@@ -138,8 +140,11 @@ extendEnvironment((hre) => {
                 console.error("There was an error while running this method");
                 console.error(e);
             },
-            onSuccess: async (tx) => {
-                console.log("Subscription id:", await hre.common.getTransactionLogs(tx)[0].args[0]);
+            onSuccess: async (tx, contract) => {
+                await tx.wait();
+                console.log("Subscription id:", await hre.common.getTransactionLogs(
+                    contract, tx, "SubscriptionCreated"
+                )[0].args[0]);
             }
         }, [], {}
     ).asTask(
