@@ -846,7 +846,7 @@ const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
 
 module.exports = buildModule("VRFCoordinatorV2Plus", (m) => {
     const contract = m.contractAt(
-        "RemoteVRFCoordinatorV2PlusStub", "0xTheVRFAddressForTheNetwork"
+        "RemoteVRFCoordinatorV2PlusStub", "0xTheVRFCoordinatorAddressForTheNetwork"
     );
 
     return { contract };
@@ -854,12 +854,149 @@ module.exports = buildModule("VRFCoordinatorV2Plus", (m) => {
 ```
 
 And, since the reference is already added to the `deploy-everything` feature (since the module file name matches the
-same pattern of the _bare_ file used for localhost network), the module is already added to the feature and can be run:
+same pattern of the _bare_ file used for localhost network), the module is already added to the list. However, when
+you try to run the following command:
 
 ```shell
 # Ensure it is the same network
 npx hardhat ignition deploy-everything run --network some-network
 ```
+
+You'll notice an error. This happens because _we didn't define the Consumer contract's deployment module yet_, and it
+is trying to use the existing (localhost-only) module. The big problem here is that the existing consumer module is
+trying to deploy the *mock* Coordinator contract, and then the consumer contract, in the live network, which causes
+errors, mainly because we don't have, so far, any private key set.
+
+By the end of this section, I'll explain how to set up a private key, a subscription, and LINK funds for it (read more
+Chainlink documentation to know how to fund a subscription with native currency vs. fund with LINK currency). If you
+already know good development practices (regarding key management) and how to create and manage subscriptions, then you
+can skip reading the appendix. Otherwise, follow the appendix. By the end you must have:
+
+1. A private key, properly setup in your project, which will own...
+2. ...a subscription id, being it one...
+3. ...already funded (LINK, in this case and related to the code of the consumer we've created).
+
+(seriously, by this point I assume you know how to manage your keys and how subscriptions work - follow Chainlink
+courses to completion if necessary about these topics)
+
+So let's generate the consumer _deployment module_, this time for this new, non-local, network:
+
+```shell
+# Always the same network and use the matching chain id for XXXXX as you did in the consumer deployment
+# In this case, we'll respect the VRFConsumerV2Plus convention since it was the same name in the localhost
+# deployment - this, to make deploy-everything work out of the box for this network as well.
+npx hardhat blueprint apply chainlink:vrf:consumer-deployment --network some-network --output-file VRFConsumerV2Plus-XXXXX
+```
+
+The consumer deployment file will look like this:
+
+```javascript
+const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
+const path = require("path");
+let relativePath = path.relative(
+    __dirname, path.resolve(
+        require("hardhat").config.paths.root, "ignition", "modules",
+        "VRFCoordinatorV2Plus-XXXXX.js".replaceAll("\\", "/")
+    )
+);
+if (!relativePath.startsWith(".")) relativePath = "./" + relativePath;
+const vrfCoordinatorModule = require(relativePath);
+
+module.exports = buildModule("VRFConsumerV2Plus", (m) => {
+    // You can pass parameters (e.g. "foo") to this module and attend
+    // or capture them by using line like this one:
+    //
+    // (parameter keys must be valid alphanumeric strings, and parameter
+    // values, both expected and default, must be json-serializable ones,
+    // which can be numbers, boolean values, strings or null)
+    //
+    // const foo = m.getParameter("foo", "someValue");
+    //
+    // This is needed for the consumer:
+    const keyHash = "0x...some key hash...";
+    // Since this module is meant to be executed for non-local networks,
+    // the subscription id must be populated externally. In this case, it
+    // will be done by populating a parameters file like this example:
+    //
+    // {
+    //     ...,
+    //     "VRFConsumerV2Plus": {
+    //         ...
+    //         "subscriptionId": "128713872847"
+    //         ...
+    //     },
+    //     ...
+    // }
+    //
+    // where "128713872847" is just a big integer being the subscription id
+    // you retrieved in the Chainlink interface.
+    // Since the test networks eventually reset, that parameters file should
+    // be IGNORED in git (via .gitignore) for the test network it related to,
+    // and a different one should be used for corresponding live networks (this
+    // also implies there must typically be a different parameters file for
+    // each network, while still adding to .gitignore all the files that
+    // are for local networks - each having at minimum a different value in
+    // "subscriptionId" for module "VRFConsumerV2Plus").
+    const subscriptionId = m.getParameter("subscriptionId", "0");
+
+    // This is a simple module which only deploys a contract. The result
+    // of m.contract is a special value (not an actual contract nor its
+    // address) that makes part of the ignition declarative paradigm: a
+    // "future". Read more about ignition and futures in the official
+    // documentation @ Hardhat's website.
+
+    // The [] receives as many argument as your contract needs. Those
+    // will be passed directly to the constructor.
+
+    const vrfCoordinator = m.useModule(vrfCoordinatorModule).contract;
+    const contract = m.contract(
+        "VRFConsumerV2Plus", [subscriptionId, vrfCoordinator, keyHash]
+    );
+    m.call(vrfCoordinator, "addConsumer", [subscriptionId, contract]);
+
+    // In this case, the result is a single object having a contract: key
+    // which contains the future. When Ignition deployment is invoked and
+    // retrieved via code, the result will be a single object having a
+    // contract: key which contains a Contract instance (from `ethers` or
+    // `viem` or whatever biding you're using for Ignition).
+
+    // Feel free to edit this file as needed, but it's a good idea to keep
+    // the object with the contract: key (you can freely add more keys) or
+    // other tools based on this one might not work for your script.
+
+    return { contract };
+});
+```
+
+Some things are important to consider:
+
+1. Following the example, leave the name as VRFConsumerV2Plus for the said reasons above.
+2. Pick the same consumer contract we're already using: VRFConsumerV2Plus.
+3. Choose the name of an argument to be used. This argument will be used among Hardhat Ignition arguments when
+   deploying. for example, if you choose `subscriptionId`, then on deployment you will send arguments like this:
+
+   ```shell
+   npx hardhat ignition deploy-everything run --network some-network --parameters="./path/to/parameters.json"
+   ```
+   
+   Being such file's contents for this example: `{"VRFConsumerV2Plus": {"subscriptionId": 12345}}` (where `12345` is
+   a placeholder - use your actual subscription number). Typically, this file would be _ignored_ in the repository.
+4. Choose a gas lane. Gas lanes determine the price you (the subscription owner) pay for each gas unit in these calls.
+   Don't worry: if you need a dynamic logic you can modify the consumer contract, but this logic takes into account a
+   specific logic for the contract and its arguments. Feel free to modify your files accordingly. This wizard follows
+   a default suggested structure.
+5. Finally, choose which deployment file to take a dependency (one with the coordinator defined). We'll pick our
+   VRFCoordinatorV2Plus-XXXXX deployment file (yes: for the same network).
+
+Considering that you have proper key being set, gas being set, and so, then your command should work now:
+
+```shell
+npx hardhat ignition deploy-everything run --network some-network --parameters ./ignition/some-network-parameters.json
+```
+
+With this, the consumer will be set up. Now, take the address of the contract (explore the deployed_addresses.json
+file among your ignition files or use `hardhat ignition status chain-XXXXX`) and set it up in your subscription as
+a consumer.
 
 ## Available Commands
 
