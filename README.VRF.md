@@ -683,8 +683,8 @@ The consumer is ready. Now, it's time to test everything locally. We'll do the f
 
 5. The request will be _pending_ for, in the local network, nothing resolves that request _yet_.
 
-   ```shell
-   # Try getting the request.
+   ```javascript
+   // Try getting the request.
    await consumer.getRequest("foo")  // will return [1n, 0n], meaning it is pending.
    ```
    
@@ -708,4 +708,57 @@ The consumer is ready. Now, it's time to test everything locally. We'll do the f
    Choose the mock contract, the request id `1`, and the consumer contract (in _that_ order).
    If everything works OK, the request will be satisfied.
 
+8. Finally, try again getting the current request in the console:
+
+   ```javascript
+   // Try getting the request.
+   await consumer.getRequest("foo")  // will return [2n, ...some big random number...].
+   // In this example case, 2n means "completed".
+   ```
+
+**For a better approach** consider actually running a special worker. While playing in another console (just to start
+fresh, but otherwise you can skip the steps 1 - 4 of these instructions and continue in the same console you were
+playing), do the following steps:
+
+5. First, run this worker (if you don't, then you're in the previous case where you have to do the manual steps):
+
+   ```shell
+   npx hardhat invoke chainlink:vrf:fulfill-random-words-worker --network localhost
+   ```
+   
+   It will tell you to choose a contract (choose the VRF V2.5 Mock contract) and will start an endless loop (when you
+   want to close it, just use the classic Ctrl+C hotkey). In this loop, only **new** requests will be processed by the
+   worker, while previous requests (i.e. those triggered before while the worker is not running) will be processed with
+   the previous, manual, approach.
+
+   Please note: **this mock resolves the request immediately, ignoring the specified `confirmations` argument**.
+
+6. After this is done, go back to the console and see how they're immediately attended. Do this by trying:
+
+   ```javascript
+   await consumer.launchRequest("bar")
+   // Wait some time and check the worker terminal you're running. You'll see a line like this:
+   //     Received request id: 2n from sender: 0xSomeEthAddress
+   // Then, come back and try getting the request:
+   await consumer.getRequest("bar")
+   // And now you should see a result!!!! (something like Result(2) [2n, ...big number...])
+   ```
+
+If you managed to get here, then **congratulations**!!! You've properly set up your consumer contract!!!
+
+Now, consider something: this was just an example. Tune the logic to your needs.
+
+**NOTES**: If, for some reason, the request is never fulfilled, it's probably due to a revert in the fulfillment logic.
+The most common causes are:
+
+1. A bug in your logic. Debug it thoroughly as always.
+2. If no apparent bug, then the reason is **gas**. Ensure the gas you specify in the consumer (for a request) is big
+   enough. By default, the consumer template suggests 1000000 of gas.
+
 ### Main and Test networks
+
+## Available Commands
+
+## Conclusion
+This package, so far, provides help only for Chainlink Price Feeds and VRF. Chainlink Functions is still an ongoing
+development (and, to be honest, _will_ take some time).
