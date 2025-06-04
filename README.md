@@ -13,7 +13,7 @@ will be given for the features.
 Run this command to install it from NPM:
 
 ```shell
-npm install --save-dev @chainlink/contracts@^1.3.0 @chainlink/functions-toolkit@^0.3.2 @chainlink/env-enc@^1.0.5 hardhat-common-tools@^1.7.0 hardhat-enquirer-plus@^1.5.1 hardhat-blueprints@^1.4.0 hardhat-ignition-deploy-everything@^1.1.0 hardhat-method-prompts@^1.3.1
+npm install --save-dev @chainlink/contracts@^1.3.0 @chainlink/functions-toolkit@^0.3.2 @chainlink/env-enc@^1.0.5 hardhat-common-tools@^1.7.0 hardhat-enquirer-plus@^1.5.2 hardhat-blueprints@^1.4.0 hardhat-ignition-deploy-everything@^1.1.0 hardhat-method-prompts@^1.3.1
 ```
 
 ### Instructions related to Chainlink VRF
