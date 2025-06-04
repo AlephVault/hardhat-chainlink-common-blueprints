@@ -8,6 +8,8 @@ import "@chainlink/contracts/src/v0.8/vrf/dev/interfaces/IVRFCoordinatorV2Plus.s
  * remotely (externally) deployed contracts satisfying RemoteVRFCoordinatorV2PlusStub.
  */
 contract RemoteVRFCoordinatorV2PlusStub is IVRFCoordinatorV2Plus {
+    event SubscriptionCreated(uint256 indexed subId, address owner);
+
     constructor(){}
 
     function addConsumer(uint256 subId, address consumer) external {}
