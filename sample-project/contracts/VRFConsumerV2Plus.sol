@@ -76,6 +76,11 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
      */
     mapping(uint256 => Request) private requests;
 
+    /**
+     * Requests by id. Retrieving 0 stands for invalid name.
+     */
+    mapping(string => uint256) private requestIdByName;
+
     // Add more parameters to this constructor when needed.
     constructor(uint256 _subscriptionId, address _vrfCoordinator, bytes32 _keyHash)
     VRFConsumerBaseV2Plus(_vrfCoordinator)
@@ -95,7 +100,7 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
     // must be modified enough so it is not freely invokable by
     // external users or contracts, but by certain rules instead
     // (e.g. as part of a game-related request).
-    function triggerDAPPRequest() internal {
+    function triggerDAPPRequest() internal returns (uint256) {
         // Add any prior logic here.
 
         uint256 requestId = s_vrfCoordinator.requestRandomWords(
@@ -125,6 +130,8 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
         // Emit the custom event, perhaps adding more data. This is
         // optional but a typically useful use case.
         emit RequestStarted(requestId);
+
+        return requestId;
     }
 
     /**
@@ -150,7 +157,17 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
     /**
      * Returns a single request.
      */
-    function getRequest(uint256 requestId) external view returns (Request memory) {
+    function getRequest(string memory name) external view returns (Request memory) {
+        uint256 requestId = requestIdByName[name];
+        require(requestId != 0, "Invalid request");
         return requests[requestId];
+    }
+
+    /**
+     * Performs a request.
+     */
+    function launchRequest(string memory name) external {
+        require(requestIdByName[name] == 0, "Request name already used");
+        requestIdByName[name] = triggerDAPPRequest();
     }
 }

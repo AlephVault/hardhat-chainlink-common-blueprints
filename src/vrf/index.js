@@ -338,7 +338,8 @@ extendEnvironment((hre) => {
                 message: "Choose the address of the consumer contract (a VRFConsumer V2 / V2Plus one, here)",
                 argumentType: {
                     prompt: {
-                        type: "plus:hardhat:given-or-deployed-contract-select"
+                        type: "plus:hardhat:given-or-deployed-contract-select",
+                        returnAddress: true
                     },
                     description: "A deployed VRF consumer"
                 }

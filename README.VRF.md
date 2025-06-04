@@ -444,6 +444,11 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
      */
     mapping(uint256 => Request) private requests;
 
+    /**
+     * Requests by id. Retrieving 0 stands for invalid name.
+     */
+    mapping(string => uint256) private requestIdByName;
+
     // Add more parameters to this constructor when needed.
     constructor(uint256 _subscriptionId, address _vrfCoordinator, bytes32 _keyHash)
         VRFConsumerBaseV2Plus(_vrfCoordinator)
@@ -463,7 +468,7 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
     // must be modified enough so it is not freely invokable by
     // external users or contracts, but by certain rules instead
     // (e.g. as part of a game-related request).
-    function triggerDAPPRequest() internal {
+    function triggerDAPPRequest() internal returns (uint256) {
         // Add any prior logic here.
 
         uint256 requestId = s_vrfCoordinator.requestRandomWords(
@@ -513,13 +518,28 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
         // Emit the custom event, perhaps adding more data. This is
         // optional but a typically useful use case.
         emit RequestCompleted(requestId);
+        
+        return requestId;
     }
-  
+
     /**
      * Returns a single request.
      */
-    function getRequest(uint256 requestId) external view returns (Request memory) {
+    function getRequest(string memory name) external view returns (Request memory) {
+        uint256 requestId = requestIdByName[name];
+        require(requestId != 0, "Invalid request");
         return requests[requestId];
+    }
+
+
+    /**
+     * Performs a request.
+     */
+    function launchRequest(string memory name) external {
+        // Yes, it's a bad practice to revert in a view like this.
+        // Still, consider this just an example.
+        require(requestIdByName[name] == 0, "Request name already used");
+        requestIdByName[name] = triggerDAPPRequest();
     }
 }
 ```
@@ -527,9 +547,10 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
 The new sample code does:
 
 1. Update the request structure to have the returned value (for when it's `RequestStatus.Completed`).
-2. Start the request with value=0. Only 1 random word is requested.
+2. Start the request with value=0. Only 1 random word is requested. Return the id of the generated request.
 3. When the value gets completed, sets the value with the first random word.
-4. A method to return data of a request.
+4. A method to return data of a request by a chosen name.
+5. A method to launch the request by a chosen name.
 
 Then, it's time to create the deployment file for this contract. It's done with the following command:
 
@@ -645,5 +666,46 @@ The consumer is ready. Now, it's time to test everything locally. We'll do the f
    ```shell
    npx hardhat ignition deploy-everything run --network localhost
    ```
+
+3. Then, open a console and load that contract:
+
+   ```shell
+   npx hardhat console --network localhost
+   ```
+   
+4. In the console, start with commands:
+
+   ```shell
+   # Get the consumer contract and launch a request.
+   const consumer = await hre.ignition.getDeployedContract("VRFConsumerV2Plus#VRFConsumerV2Plus")
+   await consumer.launchRequest("foo")
+   ```
+
+5. The request will be _pending_ for, in the local network, nothing resolves that request _yet_.
+
+   ```shell
+   # Try getting the request.
+   await consumer.getRequest("foo")  // will return [1n, 0n], meaning it is pending.
+   ```
+   
+6. Now it's time to list the current requests pending in the _coordinator_ contract:
+
+   ```shell
+   npx hardhat invoke chainlink:vrf:list-requests --network localhost
+   ```
+   
+   Since this is a mock, it will return a single request number only: `1n`. Keep this number in mind.
+   **NOTES**: Although this approach is annoying, don't worry! You'll only learn this for informational purposes, but
+              there is a better approach to do this in localhost. Just follow this example for a while to learn what's
+              going on.
+
+7. Now, take that `1n` and ensure it's fulfilled by the mock:
+
+   ```shell
+   npx hardhat invoke chainlink:vrf:fulfill-random-words --network localhost
+   ```
+   
+   Choose the mock contract, the request id `1`, and the consumer contract (in _that_ order).
+   If everything works OK, the request will be satisfied.
 
 ### Main and Test networks
