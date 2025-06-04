@@ -57,6 +57,29 @@ require("hardhat-blueprints");
 require("hardhat-method-prompts");
 require("hardhat-ignition-deploy-everything");
 require("hardhat-chainlink-contracts");
+
+/** @type import('hardhat/config').HardhatUserConfig */
+module.exports = {
+    // USE AT LEAST ONE Solidity VERSION WITH OPTIMIZATION.
+    // Optimizations are required for VRF and Function mocks
+    // in the local networks.
+    solidity: {
+        version: "some.solidity.version",
+        settings: {
+            optimizer: {
+                enabled: true,
+                runs: 200
+            }
+        }
+    },
+    networks: {
+        hardhat: {
+            // Although, by default, this ID is used for localhost.
+            chainId: 31337 // Default Hardhat Network ID
+        },
+        // ...more networks here...
+    }
+};
 ```
 
 ## Price Feeds
