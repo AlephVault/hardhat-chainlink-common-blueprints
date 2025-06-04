@@ -16,7 +16,7 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
     // them to actual variables and arguments if you need
     // to make them per-network, but ensure you respect
     // the identifier names in the process.
-    uint32 constant callbackGasLimit = 1000000; // Default: 3000000
+    uint32 constant callbackGasLimit = 1000000; // Default: 1000000
     uint16 constant requestConfirmations = 3; // Default: 3
     uint32 constant numWords = 1; // Default: 1
     bool constant nativePayments = false; // Default: false
@@ -67,7 +67,8 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
          * a given request ID was never issued.
          */
         RequestStatus status;
-        // Add more variables you deem useful here.
+        // The random value.
+        uint256 value;
     }
 
     /**
@@ -77,7 +78,7 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
 
     // Add more parameters to this constructor when needed.
     constructor(uint256 _subscriptionId, address _vrfCoordinator, bytes32 _keyHash)
-        VRFConsumerBaseV2Plus(_vrfCoordinator)
+    VRFConsumerBaseV2Plus(_vrfCoordinator)
     {
         subscriptionId = _subscriptionId;
         keyHash = _keyHash;
@@ -119,7 +120,7 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
         // wasted money and, of course, it is a bug.
         // Custom data is allowed and typically recommended depending on
         // the dapp's logic.
-        requests[requestId] = Request({status: RequestStatus.Pending});
+        requests[requestId] = Request({status: RequestStatus.Pending, value: 0});
 
         // Emit the custom event, perhaps adding more data. This is
         // optional but a typically useful use case.
@@ -138,10 +139,18 @@ contract VRFConsumerV2Plus is VRFConsumerBaseV2Plus {
         // will exist, as long as it is properly stored on launch.
         Request storage request = requests[requestId];
         request.status = RequestStatus.Completed;
+        request.value = randomWords[0];
         // Fulfilling will involve setting more data in the request.
 
         // Emit the custom event, perhaps adding more data. This is
         // optional but a typically useful use case.
         emit RequestCompleted(requestId);
+    }
+
+    /**
+     * Returns a single request.
+     */
+    function getRequest(uint256 requestId) external returns (Request) {
+        return requests[requestId];
     }
 }
