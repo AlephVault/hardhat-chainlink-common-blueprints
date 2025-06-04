@@ -35,7 +35,7 @@ contract VRFCoordinatorV2PlusMock is VRFCoordinatorV2_5Mock {
      * only locally, so tests and local environments can rely, conditionally,
      * on specific ids.
      */
-    function createExplicitSubscription(uint256 subId) external nonReentrant {
+    function createSubscription(uint256 subId) external nonReentrant {
         // Test the required subscription id.
         require(!s_subIds.contains(subId), "VRFCoordinatorV2PlusMock: That subscription id already exists");
         // Increment the subscription nonce counter.
