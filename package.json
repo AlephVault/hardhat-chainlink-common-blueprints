@@ -1,6 +1,6 @@
 {
   "name": "hardhat-chainlink-common-blueprints",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A hardhat plugin providing helpers to play with mocks of Chainlink services",
   "main": "src/index.js",
   "scripts": {
