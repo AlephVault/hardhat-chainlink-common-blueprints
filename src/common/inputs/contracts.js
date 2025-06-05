@@ -14,7 +14,7 @@ extendEnvironment(hre => {
             this._loadChoices = async () => {
                 const chainId = await hre.common.getChainId();
                 return loader ? (await loader()).filter((e) => chainId === BigInt(e.chainId)).map((e) => {
-                    return {name: e.address, message: e.name};
+                    return {name: e.address || e.value, message: e.name};
                 }) : (choices || []).map(e => ({name: e.address, message: e.name}));
             }
         }
